@@ -14,7 +14,7 @@
   --green:#48bb78;--green-glow:rgba(72,187,120,0.10);
   --bg:#0d1117;--bg2:#161b22;--bg3:#1c2330;--bg4:#0a0d13;
   --border:#2d3748;--border2:#374151;
-  --text:#f0f4f8;--muted:#8892a4;--muted2:#606878;
+  --text:#F5F8FF;--muted:#D6E2F5;--muted2:#B8C7E0;--soft:#9FB2D1;
   --mono:'Courier New',monospace;
 }
 
@@ -32,10 +32,8 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg4);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-/* ── CURSOR ── */
 #cur{position:fixed;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(229,62,62,0.05) 0%,transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:opacity .3s}
 
-/* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:58px;background:rgba(10,13,19,0.90);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
 .nav-logo{font-size:17px;font-weight:800;letter-spacing:2px;text-decoration:none}
 .nav-logo .w{color:#fff}.nav-logo .r{color:var(--red)}
@@ -45,7 +43,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-links a:hover{color:#fff}
 .nav-links a:hover::after{transform:scaleX(1)}
 
-/* ── HERO ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:90px 40px 60px;text-align:center;position:relative;overflow:hidden}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(45,55,72,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(45,55,72,0.4) 1px,transparent 1px);background-size:60px 60px;opacity:0.3}
 .hero-glow{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(229,62,62,0.06) 0%,transparent 65%);pointer-events:none;animation:glow-pulse 4s infinite}
@@ -53,7 +50,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .hero-tag::before{content:'';width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
 .hero h1{font-size:clamp(52px,9vw,96px);font-weight:800;letter-spacing:5px;line-height:1.0;position:relative;z-index:1;animation:reveal .8s .1s ease both}
 .hero h1 .w{color:#fff}.hero h1 .r{color:var(--red)}
-.hero-sub{font-size:19px;color:#b0bac8;max-width:560px;margin:22px auto 38px;position:relative;z-index:1;line-height:1.75;animation:reveal .8s .2s ease both;font-weight:400;letter-spacing:0.01em}
+.hero-sub{font-size:19px;color:#b0bac8;max-width:580px;margin:22px auto 38px;position:relative;z-index:1;line-height:1.75;animation:reveal .8s .2s ease both;font-weight:400;letter-spacing:0.01em}
 .hero-btns{display:flex;gap:12px;justify-content:center;position:relative;z-index:1;animation:reveal .8s .3s ease both}
 .btn{display:inline-block;padding:13px 32px;border-radius:7px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-decoration:none;transition:all .2s;cursor:pointer}
 .btn-red{background:var(--red);color:#fff;border:none}
@@ -61,34 +58,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}
 .btn-outline:hover{border-color:var(--red2);transform:translateY(-2px)}
 
-/* HERO DEMO MONİTÖR */
 .hero-monitor{position:relative;z-index:1;margin-top:48px;max-width:560px;width:100%;animation:reveal .8s .4s ease both}
 .monitor-frame{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)}
 .monitor-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border)}
 .mdot{width:9px;height:9px;border-radius:50%}
-.monitor-label{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.monitor-label{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
 .monitor-live{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--green);margin-left:10px}
 .monitor-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite}
 .monitor-body{padding:18px;position:relative;overflow:hidden}
 .scan-overlay{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(229,62,62,0.4),transparent);animation:scanline 3s linear infinite;pointer-events:none}
 
-/* ── STATS ── */
 .stats{display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .stat{flex:1;padding:44px 20px;text-align:center;border-right:1px solid var(--border);transition:background .25s;cursor:default}
 .stat:last-child{border-right:none}
 .stat:hover{background:var(--bg2)}
 .stat-n{font-size:46px;font-weight:800;color:var(--red);line-height:1;transition:transform .2s}
 .stat:hover .stat-n{transform:scale(1.08)}
-.stat-l{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:8px;text-transform:uppercase;font-weight:500}
+.stat-l{font-size:12px;color:var(--muted);letter-spacing:2px;margin-top:8px;text-transform:uppercase;font-weight:600}
 
-/* ── SECTION ── */
 section{padding:96px 48px}
 .smax{max-width:1100px;margin:0 auto}
 .stag{font-family:var(--mono);font-size:10px;color:var(--red);letter-spacing:3px;margin-bottom:12px}
 .stitle{font-size:clamp(28px,3.8vw,44px);font-weight:700;margin-bottom:16px;line-height:1.12;letter-spacing:-0.02em}
 .sdesc{color:#9aa5b4;font-size:16px;max-width:560px;line-height:1.85;font-weight:400}
 
-/* ── DETECTION ANİMASYON ── */
 .det-section{border-top:1px solid var(--border);background:var(--bg)}
 .det-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 .pipeline{display:flex;flex-direction:column;gap:0;margin-top:36px}
@@ -100,29 +93,27 @@ section{padding:96px 48px}
 .pipe.done .pipe-ind{background:var(--green);box-shadow:0 0 8px var(--green)}
 .pipe-num{font-family:var(--mono);font-size:10px;color:var(--red);min-width:26px;padding-top:2px}
 .pipe h4{font-size:13px;font-weight:600;margin-bottom:3px}
-.pipe p{font-size:12px;color:var(--muted);line-height:1.6}
+.pipe p{font-size:13px;color:var(--muted);line-height:1.65;font-weight:500}
 
 .cam-visual{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .cam-top{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border)}
-.cam-lbl{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.cam-lbl{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
 .cam-body{padding:16px;position:relative}
 
-/* ── SİMÜLATÖR SECTION ── */
 .sim-section{border-top:1px solid var(--border);background:linear-gradient(180deg,var(--bg) 0%,var(--bg4) 100%)}
 
-/* SLIDER */
 .sl-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:18px}
 .sl-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .sg{margin-bottom:0}
 .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.sn{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:1px}
+.sn{font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:1px;font-weight:600}
 .sv{font-size:13px;font-weight:700;font-family:var(--mono)}
 .sdelta{font-size:10px;font-family:var(--mono);margin-left:5px;opacity:0;transition:opacity .2s}
 .sdelta.vis{opacity:1}
 .sdelta.up{color:var(--red)}.sdelta.dn{color:var(--green)}
 
 .ttog{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
-.tbtn{padding:10px 8px;border-radius:7px;font-size:11px;font-weight:600;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--muted);transition:all .2s;text-align:center}
+.tbtn{padding:10px 8px;border-radius:7px;font-size:11px;font-weight:700;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--muted);transition:all .2s;text-align:center}
 .tbtn span{display:block;font-size:9px;opacity:.6;margin-top:2px;font-weight:400}
 .tbtn.active{background:rgba(229,62,62,0.1);border-color:var(--red);color:var(--red)}
 .tbtn:hover{border-color:var(--border2);color:var(--text)}
@@ -131,7 +122,6 @@ input[type=range]{width:100%;height:3px;border-radius:2px;outline:none;border:no
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);cursor:pointer;transition:transform .15s,background .2s;border:2px solid var(--bg2)}
 input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:var(--red)}
 
-/* BANNER */
 .banner{border-radius:10px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;border:1px solid;transition:all .35s}
 .banner.ok{border-color:var(--green);background:var(--green-glow)}
 .banner.warning{border-color:var(--amber);background:var(--amber-glow);animation:pulse-amb 2s infinite}
@@ -144,36 +134,38 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:va
 .b-right{text-align:right;flex-shrink:0}
 .b-pct{font-size:46px;font-weight:800;line-height:1;transition:color .3s}
 .b-pct.ok{color:var(--green)}.b-pct.warning{color:var(--amber)}.b-pct.critical{color:var(--red)}
-.b-cap{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+.b-cap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;letter-spacing:.2px}
 
-/* ÇIKTI GRID */
 .out-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
 .out{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;transition:all .3s}
 .out.r{border-color:var(--red);background:var(--red-dim)}
 .out.a{border-color:var(--amber);background:var(--amber-glow)}
 .out.g{border-color:var(--green);background:var(--green-glow)}
-.out-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:8px}
+.out-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;font-weight:700}
 .out-val{font-size:28px;font-weight:800;line-height:1;transition:color .3s}
-.out-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.out-sub{font-size:13px;color:var(--muted);margin-top:7px;font-weight:600;line-height:1.35}
 
 .cap-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;transition:border-color .3s;margin-bottom:14px}
 .cap-card.a{border-color:var(--amber)}.cap-card.r{border-color:var(--red)}
-.cap-h{display:flex;justify-content:space-between;margin-bottom:9px;font-family:var(--mono);font-size:9px;color:var(--muted)}
+.cap-h{display:flex;justify-content:space-between;margin-bottom:10px;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600}
 .track{height:14px;background:var(--bg3);border-radius:7px;overflow:hidden;position:relative}
 .fill{height:100%;border-radius:7px;transition:width .45s ease,background .3s}
 .marks{position:relative;height:14px;margin-top:3px}
-.mark{position:absolute;font-family:var(--mono);font-size:8px;transform:translateX(-50%)}
+.mark{position:absolute;font-family:var(--mono);font-size:11px;font-weight:700;transform:translateX(-50%);color:var(--text)}
+.mark.amber{color:#F8D38A}
+.mark[style*="90%"]{color:#FF8A8A}
+
 
 .bag-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
 .bag-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .bag-row:last-child{margin-bottom:0}
 .bdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.bname{font-size:11px;min-width:72px;color:var(--muted)}
+.bname{font-size:13px;min-width:92px;color:var(--muted);font-weight:600}
 .btrack{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
 .bbar{height:100%;border-radius:3px;transition:width .4s ease}
 .bcnt{font-family:var(--mono);font-size:11px;min-width:26px;text-align:right}
+.bnote{font-family:var(--mono);font-size:12px;color:var(--muted2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-weight:600;line-height:1.45}
 
-/* AKSİYON KARTI */
 .ac{border-radius:10px;padding:16px 18px;border-left:4px solid;transition:all .3s;margin-bottom:14px}
 .ac.ok{border-color:var(--green);background:rgba(72,187,120,0.06)}
 .ac.warning{border-color:var(--amber);background:rgba(246,173,85,0.07)}
@@ -189,17 +181,16 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:va
 .atag.r{background:rgba(229,62,62,0.12);color:var(--red);border:1px solid var(--red2)}
 .atag.a{background:rgba(246,173,85,0.1);color:var(--amber)}
 .atag.g{background:rgba(72,187,120,0.1);color:var(--green)}
-.atag.m{background:var(--bg3);color:var(--muted)}
+.atag.m{background:var(--bg3);color:var(--muted);font-weight:600}
 
 .cmp-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
 .cmp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .cmp-row:last-child{margin-bottom:0}
-.cmp-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);min-width:70px}
+.cmp-lbl{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:90px;font-weight:600}
 .cmp-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
 .cmp-bar{height:100%;border-radius:2px;transition:width .45s ease}
-.cmp-num{font-family:var(--mono);font-size:10px;min-width:30px;text-align:right}
+.cmp-num{font-family:var(--mono);font-size:12px;min-width:40px;text-align:right;font-weight:700}
 
-/* ── HOW IT WORKS ── */
 .how-section{border-top:1px solid var(--border);background:var(--bg)}
 .steps{display:flex;flex-direction:column;gap:0;margin-top:48px}
 .step{display:flex;gap:32px;align-items:flex-start;padding:28px 0;border-bottom:1px solid var(--border);transition:background .2s;cursor:default}
@@ -209,40 +200,22 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:va
 .step h3{font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-0.01em}
 .step p{font-size:15px;color:#9aa5b4;line-height:1.8}
 
-/* ── TECH ── */
 .tech-section{border-top:1px solid var(--border);background:var(--bg4)}
 
-/* ── VIDEO SECTION ── */
 .video-section{border-top:1px solid var(--border);background:var(--bg4);padding:96px 48px}
-.video-wrap{
-  margin-top:48px;position:relative;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:12px;overflow:hidden;
-  transition:border-color .3s,box-shadow .3s;
-}
+.video-wrap{margin-top:48px;position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .3s,box-shadow .3s}
 .video-wrap:hover{border-color:var(--red2);box-shadow:0 0 48px rgba(229,62,62,0.08)}
-.video-topbar{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 18px;background:var(--bg3);
-  border-bottom:1px solid var(--border);
-}
+.video-topbar{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--bg3);border-bottom:1px solid var(--border)}
 .video-live{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--green);margin-left:auto}
 .video-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite}
-.video-wrap video{
-  width:100%;display:block;
-  aspect-ratio:16/9;background:#000;
-}
-.video-caption{
-  padding:14px 18px;background:var(--bg3);
-  border-top:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;
-}
-.video-caption span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+.video-wrap video{width:100%;display:block;aspect-ratio:16/9;background:#000}
+.video-caption{padding:14px 18px;background:var(--bg3);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.video-caption span{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.8px;font-weight:500}
 .video-tags{display:flex;gap:8px}
 .vtag{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
 .vtag.r{background:rgba(229,62,62,0.1);color:var(--red);border:1px solid var(--red2)}
 .vtag.g{background:rgba(72,187,120,0.1);color:var(--green)}
-.vtag.m{background:var(--bg2);color:var(--muted)}
+.vtag.m{background:var(--bg2);color:var(--muted);font-weight:600}
 .tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:44px}
 .tc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
 .tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);transform:scaleX(0);transition:transform .3s;transform-origin:left}
@@ -252,26 +225,30 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:va
 .tc-title{font-size:16px;font-weight:600;margin-bottom:7px;letter-spacing:-0.01em}
 .tc-desc{font-size:13px;color:#9aa5b4;line-height:1.7}
 
-/* ── CTA ── */
 .cta-section{border-top:1px solid var(--border);padding:100px 48px;text-align:center;position:relative;overflow:hidden;background:var(--bg)}
 .cta-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at top,rgba(229,62,62,0.07) 0%,transparent 70%);pointer-events:none}
 .cta-section h2{font-size:clamp(22px,3vw,38px);font-weight:700;margin-bottom:14px;position:relative;z-index:1}
 .cta-section p{color:var(--muted);margin-bottom:36px;font-size:15px;position:relative;z-index:1;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7}
 
-/* ── FOOTER ── */
 footer{border-top:1px solid var(--border);padding:24px 48px;display:flex;justify-content:space-between;align-items:center;background:var(--bg4)}
 .foot-logo{font-size:14px;font-weight:800;letter-spacing:2px}
 .foot-logo .w{color:#fff}.foot-logo .r{color:var(--red)}
-footer p{font-size:12px;color:var(--muted)}
+footer p{font-size:13px;color:var(--muted);font-weight:500}
 
-/* ── SCROLL REVEAL ── */
 .rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
 .rv.vis{opacity:1;transform:translateY(0)}
 
-/* ── SCROLL INDICATOR ── */
 .scroll-ind{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:1;animation:reveal .8s .6s ease both}
-.scroll-ind span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px}
+.scroll-ind span{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;font-weight:600}
 .scroll-line{width:1px;height:36px;background:linear-gradient(var(--red),transparent)}
+
+
+/* Readability upgrade for dark dashboard secondary text */
+.out-sub,.b-cap,.cap-h,.mark,.bname,.bnote,.cmp-lbl,.cmp-num,.stat-l,.sn,.monitor-label,.cam-lbl,.video-caption span,footer p,.scroll-ind span{opacity:1!important;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.bcnt{font-size:13px;font-weight:700}
+.ac-msg{color:var(--text);font-weight:500}
+.ac-tags .atag{font-weight:600}
+.sdesc span{color:var(--muted2)!important;opacity:1!important}
 
 @media(max-width:768px){
   nav{padding:0 20px}.nav-links{display:none}
@@ -289,7 +266,6 @@ footer p{font-size:12px;color:var(--muted)}
 
 <div id="cur"></div>
 
-<!-- NAV -->
 <nav>
   <a class="nav-logo" href="#"><span class="w">CABIN</span><span class="r">VISION</span></a>
   <ul class="nav-links">
@@ -306,15 +282,14 @@ footer p{font-size:12px;color:var(--muted)}
 <div class="hero">
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
-  <div class="hero-tag">REAL-TIME CABIN BAGGAGE DETECTION</div>
+  <div class="hero-tag">GERÇEK ZAMANLI KABİN BAGAJ ANALİZİ</div>
   <h1><span class="w">CABIN</span><span class="r">VISION</span></h1>
-  <p class="hero-sub">Her boarding'de yolcuların bagajı son dakika kabinden çıkarılıyor.<br/>CabinVision bunu boarding başlamadan görür.</p>
+  <p class="hero-sub">Yoğun boarding operasyonlarında bazı kabin bagajları son dakikada gate-check'e yönlendirilebiliyor.<br/>CabinVision, baş üstü dolap talebinin kapasiteyi aşma riskini boarding sırasında erken görünür kılar.</p>
   <div class="hero-btns">
     <a href="#sim" class="btn btn-red">Simülatörü Dene</a>
     <a href="#how" class="btn btn-outline">Nasıl Çalışır</a>
   </div>
 
-  <!-- Hero monitor -->
   <div class="hero-monitor">
     <div class="monitor-frame">
       <div class="monitor-bar">
@@ -331,20 +306,17 @@ footer p{font-size:12px;color:var(--muted)}
           <defs><pattern id="g" width="48" height="44" patternUnits="userSpaceOnUse"><path d="M48 0L0 0 0 44" fill="none" stroke="#1c2330" stroke-width="0.5"/></pattern></defs>
           <rect width="480" height="220" fill="url(#g)"/>
           <line x1="0" y1="188" x2="480" y2="188" stroke="#2d3748" stroke-width="1"/>
-          <!-- İnsan 1 -->
           <circle cx="80" cy="110" r="13" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="68" y="124" width="24" height="40" rx="4" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="70" y="162" width="9" height="26" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
           <rect x="81" y="162" width="9" height="26" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
           <line x1="92" y1="136" x2="112" y2="144" stroke="#4a5568" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Valiz 1 büyük -->
           <rect x="112" y="144" width="72" height="60" rx="6" fill="#161b22" stroke="#4a5568" stroke-width="1.5"/>
           <line x1="148" y1="144" x2="148" y2="204" stroke="#2d3748" stroke-width="1.2"/>
           <line x1="112" y1="174" x2="184" y2="174" stroke="#2d3748" stroke-width="1.2"/>
           <rect x="133" y="136" width="30" height="11" rx="5" fill="none" stroke="#4a5568" stroke-width="1.5"/>
           <circle cx="122" cy="206" r="4" fill="#1a202c" stroke="#4a5568" stroke-width="1"/>
           <circle cx="174" cy="206" r="4" fill="#1a202c" stroke="#4a5568" stroke-width="1"/>
-          <!-- BBox kırmızı -->
           <rect x="104" y="128" width="88" height="84" rx="3" fill="none" stroke="#e53e3e" stroke-width="1.2" opacity="0.8"/>
           <path d="M104 142 L104 128 L118 128" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linecap="round"/>
           <path d="M192 142 L192 128 L178 128" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linecap="round"/>
@@ -352,17 +324,14 @@ footer p{font-size:12px;color:var(--muted)}
           <path d="M192 198 L192 212 L178 212" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linecap="round"/>
           <rect x="104" y="113" width="62" height="16" rx="3" fill="#e53e3e"/>
           <text x="135" y="125" text-anchor="middle" font-family="monospace" font-size="9" fill="white" font-weight="700">OVERSIZE</text>
-          <!-- İnsan 2 -->
           <circle cx="290" cy="118" r="11" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="280" y="130" width="20" height="34" rx="4" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="282" y="163" width="7" height="24" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
           <rect x="291" y="163" width="7" height="24" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
           <line x1="280" y1="140" x2="263" y2="148" stroke="#4a5568" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Sırt çantası -->
           <rect x="236" y="142" width="44" height="54" rx="5" fill="#161b22" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="248" y="134" width="20" height="10" rx="4" fill="none" stroke="#4a5568" stroke-width="1.5"/>
           <line x1="236" y1="169" x2="280" y2="169" stroke="#2d3748" stroke-width="1"/>
-          <!-- BBox yeşil -->
           <rect x="228" y="126" width="60" height="78" rx="3" fill="none" stroke="#48bb78" stroke-width="1.2" opacity="0.8"/>
           <path d="M228 138 L228 126 L240 126" fill="none" stroke="#48bb78" stroke-width="2.5" stroke-linecap="round"/>
           <path d="M288 138 L288 126 L276 126" fill="none" stroke="#48bb78" stroke-width="2.5" stroke-linecap="round"/>
@@ -370,14 +339,11 @@ footer p{font-size:12px;color:var(--muted)}
           <path d="M288 192 L288 204 L276 204" fill="none" stroke="#48bb78" stroke-width="2.5" stroke-linecap="round"/>
           <rect x="228" y="112" width="60" height="15" rx="3" fill="#48bb78"/>
           <text x="258" y="123" text-anchor="middle" font-family="monospace" font-size="9" fill="white" font-weight="700">CABIN OK</text>
-          <!-- İnsan 3 -->
           <circle cx="390" cy="122" r="10" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="381" y="133" width="18" height="30" rx="4" fill="#2d3748" stroke="#4a5568" stroke-width="1.5"/>
           <rect x="383" y="162" width="6" height="22" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
           <rect x="391" y="162" width="6" height="22" rx="3" fill="#2d3748" stroke="#4a5568" stroke-width="1"/>
-          <!-- Küçük çanta -->
           <rect x="365" y="152" width="32" height="28" rx="4" fill="#161b22" stroke="#4a5568" stroke-width="1.5"/>
-          <!-- BBox gri -->
           <rect x="358" y="144" width="46" height="42" rx="3" fill="none" stroke="#718096" stroke-width="1.2" opacity="0.7"/>
           <path d="M358 152 L358 144 L366 144" fill="none" stroke="#718096" stroke-width="2" stroke-linecap="round"/>
           <path d="M404 152 L404 144 L396 144" fill="none" stroke="#718096" stroke-width="2" stroke-linecap="round"/>
@@ -385,10 +351,9 @@ footer p{font-size:12px;color:var(--muted)}
           <path d="M404 178 L404 186 L396 186" fill="none" stroke="#718096" stroke-width="2" stroke-linecap="round"/>
           <rect x="358" y="130" width="46" height="15" rx="3" fill="#2d3748"/>
           <text x="381" y="141" text-anchor="middle" font-family="monospace" font-size="9" fill="#a0aec0" font-weight="700">PERSONAL</text>
-          <!-- Kapasite bar -->
           <rect x="10" y="196" width="460" height="12" rx="3" fill="#1c2330"/>
           <rect x="10" y="196" width="307" height="12" rx="3" fill="#e53e3e" opacity="0.7"/>
-          <text x="240" y="206" text-anchor="middle" font-family="monospace" font-size="8" fill="white">CABIN CAPACITY  67%  ·  OVERSIZED: 1  ·  CABIN OK: 1  ·  PERSONAL: 1</text>
+          <text x="240" y="206" text-anchor="middle" font-family="monospace" font-size="8" fill="white">BAŞ ÜSTÜ DOLAP TALEBİ  67%  ·  OVERSIZED: 1  ·  CABIN OK: 1  ·  PERSONAL: 1</text>
         </svg>
       </div>
     </div>
@@ -403,7 +368,7 @@ footer p{font-size:12px;color:var(--muted)}
 <!-- STATS -->
 <div class="stats">
   <div class="stat rv"><div class="stat-n">3</div><div class="stat-l">Boyut Sınıfı</div></div>
-  <div class="stat rv"><div class="stat-n">RT</div><div class="stat-l">Gerçek Zamanlı</div></div>
+  <div class="stat rv"><div class="stat-n" style="font-size:28px">CANLI</div><div class="stat-l">Gerçek Zamanlı</div></div>
   <div class="stat rv"><div class="stat-n">0</div><div class="stat-l">Ek Personel</div></div>
   <div class="stat rv"><div class="stat-n">AI</div><div class="stat-l">Karar Desteği</div></div>
 </div>
@@ -413,16 +378,15 @@ footer p{font-size:12px;color:var(--muted)}
   <div class="smax">
     <p class="stag rv">// LIVE SIMULATION</p>
     <h2 class="stitle rv">Senaryonu kur, sistemi çalıştır.</h2>
-    <p class="sdesc rv" style="margin-bottom:32px">Uçak tipi, yolcu sayısı, oversized oran — parametreleri ayarla. CabinVision gerçek zamanlı tahmin üretsin, karar söylesin.</p>
+    <p class="sdesc rv" style="margin-bottom:32px">Uçak tipi, yolcu sayısı ve oversized oranını ayarla. CabinVision, baş üstü dolap talebini tahmin ederek boarding sırasında aksiyon önerisi üretir. <span style="font-family:var(--mono);font-size:12px;color:var(--muted2);font-weight:600">[Temsilî Simülasyon Verisi · Varsayımsal demo modeli]</span></p>
 
-    <!-- SLIDER PANEL -->
     <div class="sl-panel rv">
       <div class="sl-grid">
         <div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:12px">UÇAK TİPİ</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:3px;font-weight:700;margin-bottom:12px">UÇAK TİPİ</div>
           <div class="ttog" style="margin-bottom:20px">
-            <button class="tbtn active" id="BN" onclick="setType('narrow')">Dar Gövde<span>A320 · 120 dolap</span></button>
-            <button class="tbtn" id="BW" onclick="setType('wide')">Geniş Gövde<span>B777 · 280 dolap</span></button>
+            <button class="tbtn active" id="BN" onclick="setType('narrow')">Dar Gövde<span>A320 · Baş Üstü Kapasite: 120 bagaj</span></button>
+            <button class="tbtn" id="BW" onclick="setType('wide')">Geniş Gövde<span>B777 · Baş Üstü Kapasite: 280 bagaj</span></button>
           </div>
           <div class="sg">
             <div class="sh"><span class="sn">TOPLAM YOLCU</span><span><span class="sv" id="VY">168</span><span class="sdelta" id="DY"></span></span></div>
@@ -431,11 +395,11 @@ footer p{font-size:12px;color:var(--muted)}
         </div>
         <div>
           <div class="sg" style="margin-bottom:14px">
-            <div class="sh"><span class="sn">CHECK-IN BEYAN ORANI</span><span><span class="sv" id="VB">55%</span><span class="sdelta" id="DB"></span></span></div>
+            <div class="sh"><span class="sn">ÖN TAHMİN SİNYALİ (PNR/Check-in)</span><span><span class="sv" id="VB">55%</span><span class="sdelta" id="DB"></span></span></div>
             <input type="range" id="SB" min="10" max="95" value="55">
           </div>
           <div class="sg" style="margin-bottom:14px">
-            <div class="sh"><span class="sn">OVERSIZED ORAN</span><span><span class="sv" id="VO">15%</span><span class="sdelta" id="DO"></span></span></div>
+            <div class="sh"><span class="sn">OVERSIZED ORANI</span><span><span class="sv" id="VO">15%</span><span class="sdelta" id="DO"></span></span></div>
             <input type="range" id="SO" min="0" max="50" value="15">
           </div>
           <div class="sg">
@@ -451,23 +415,38 @@ footer p{font-size:12px;color:var(--muted)}
       <div class="b-ico" id="BICO">✓</div>
       <div class="b-txt">
         <div class="b-sta ok" id="BSTA">NORMAL</div>
-        <div class="b-msg" id="BMSG">Kabin kapasitesi normal seviyede.</div>
+        <div class="b-msg" id="BMSG">Baş üstü dolap talebi normal seviyede.</div>
       </div>
       <div class="b-right">
         <div class="b-pct ok" id="BPCT">0%</div>
-        <div class="b-cap" id="BCAP">0 / 120 bagaj</div>
+        <div class="b-cap" id="BCAP">0 / 120 talep</div>
       </div>
     </div>
 
     <!-- ÇIKTILAR -->
     <div class="out-grid">
-      <div class="out" id="OD"><div class="out-lbl">DOLULUK</div><div class="out-val" id="OVD">0%</div><div class="out-sub" id="OSD">normal</div></div>
-      <div class="out" id="OO"><div class="out-lbl">OVERSIZED</div><div class="out-val" id="OVO">0</div><div class="out-sub">bagaj</div></div>
-      <div class="out" id="OK2"><div class="out-lbl">KRİTİK SIRA</div><div class="out-val" id="OVK">—</div><div class="out-sub" id="OSK">yolcu</div></div>
+      <div class="out" id="OD">
+        <div class="out-lbl">BAŞ ÜSTÜ DOLAP TALEBİ</div>
+        <div class="out-val" id="OVD">0%</div>
+        <div class="out-sub" id="OSD">normal</div>
+      </div>
+      <div class="out" id="OO">
+        <div class="out-lbl">OVERSIZED</div>
+        <div class="out-val" id="OVO">0</div>
+        <div class="out-sub">bagaj</div>
+      </div>
+      <div class="out" id="OK2">
+        <div class="out-lbl">AKSİYON PENCERESİ</div>
+        <div class="out-val" id="OVK">—</div>
+        <div class="out-sub" id="OSK">öneri yok</div>
+      </div>
     </div>
 
     <div class="cap-card" id="CC">
-      <div class="cap-h"><span>KABİN KAPASİTE KULLANIMI</span><span id="CD">0 / 120</span></div>
+      <div class="cap-h">
+        <span>TALEP / KAPASİTE</span>
+        <span id="CD">0 / 120</span>
+      </div>
       <div class="track"><div class="fill" id="CF" style="width:0%;background:var(--green)"></div></div>
       <div class="marks">
         <div class="mark amber" style="left:75%">▲ 75%</div>
@@ -476,22 +455,23 @@ footer p{font-size:12px;color:var(--muted)}
     </div>
 
     <div class="bag-card">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:9px">BAGAJ DAĞILIMI</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;font-weight:700;margin-bottom:9px">BAGAJ DAĞILIMI</div>
       <div class="bag-row"><div class="bdot" style="background:var(--red)"></div><span class="bname">Oversized</span><div class="btrack"><div class="bbar" id="BBO" style="background:var(--red);width:0%"></div></div><span class="bcnt" id="BCO" style="color:var(--red)">0</span></div>
       <div class="bag-row"><div class="bdot" style="background:var(--green)"></div><span class="bname">Cabin OK</span><div class="btrack"><div class="bbar" id="BBC" style="background:var(--green);width:0%"></div></div><span class="bcnt" id="BCC" style="color:var(--green)">0</span></div>
-      <div class="bag-row"><div class="bdot" style="background:var(--muted)"></div><span class="bname">Personal</span><div class="btrack"><div class="bbar" id="BBP" style="background:var(--muted);width:0%"></div></div><span class="bcnt" id="BCP" style="color:var(--muted)">0</span></div>
+      <div class="bag-row"><div class="bdot" style="background:var(--muted)"></div><span class="bname">Personal</span><div class="btrack"><div class="bbar" id="BBP" style="background:var(--muted);width:0%"></div></div><span class="bcnt" id="BCP" style="color:var(--muted);font-weight:700">0</span></div>
+      <div class="bnote">⚠ Personal Item baş üstü dolap talebine dahil değildir — koltuk altı / çanta olarak değerlendirilir.</div>
     </div>
 
     <div class="ac ok" id="AC">
       <div class="ac-h"><span class="ac-ico" id="AI">✓</span><span class="ac-tit ok" id="AT">NORMAL — BOARDING DEVAM EDİYOR</span></div>
-      <div class="ac-msg" id="AM">Kabin kapasitesi normal seviyede.</div>
+      <div class="ac-msg" id="AM">Baş üstü dolap talebi normal seviyede.</div>
       <div class="ac-tags" id="ATAGS"></div>
     </div>
 
     <div class="cmp-card rv">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:9px">TAHMİN vs BEKLENEN DOLULUK</div>
-      <div class="cmp-row"><span class="cmp-lbl">Check-in bazlı</span><div class="cmp-track"><div class="cmp-bar" id="C1" style="background:var(--amber);width:0%"></div></div><span class="cmp-num" id="C1V" style="color:var(--amber)">0%</span><span style="font-family:var(--mono);font-size:9px;margin-left:6px" id="CDIFF"></span></div>
-      <div class="cmp-row"><span class="cmp-lbl">Boarding dahil</span><div class="cmp-track"><div class="cmp-bar" id="C2" style="background:var(--red);width:0%"></div></div><span class="cmp-num" id="C2V" style="color:var(--red)">0%</span></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;font-weight:700;margin-bottom:9px">TAHMİN vs GÖZLENEN TALEP</div>
+      <div class="cmp-row"><span class="cmp-lbl">Ön Tahmin</span><div class="cmp-track"><div class="cmp-bar" id="C1" style="background:var(--amber);width:0%"></div></div><span class="cmp-num" id="C1V" style="color:var(--amber)">0%</span><span style="font-family:var(--mono);font-size:9px;margin-left:6px" id="CDIFF"></span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Boarding Dahil</span><div class="cmp-track"><div class="cmp-bar" id="C2" style="background:var(--red);width:0%"></div></div><span class="cmp-num" id="C2V" style="color:var(--red)">0%</span></div>
     </div>
   </div>
 </section>
@@ -500,13 +480,13 @@ footer p{font-size:12px;color:var(--muted)}
 <section class="how-section" id="how">
   <div class="smax">
     <p class="stag rv">// HOW IT WORKS</p>
-    <h2 class="stitle rv">Sorun gate'de başlar.<br/>Çözüm de öyle.</h2>
-    <p class="sdesc rv">Dört adımlık pipeline — yolcu gate'e adım atar atmaz devreye girer, boarding bitmeden karar üretir.</p>
+    <h2 class="stitle rv">Risk gate'de görünür olur.<br/>Aksiyon da orada başlar.</h2>
+    <p class="sdesc rv">Dört adımlık pipeline — yolcu gate'e adım atar atmaz devreye girer, boarding bitmeden tahmine dayalı aksiyon önerisi üretir.</p>
     <div class="steps">
-      <div class="step rv"><span class="step-n">01</span><div><h3>Yolcu gate'e adım atar atmaz sistem devreye girer</h3><p>Gate kamerası boarding başlar başlamaz frame akışını YOLOv8 modeline iletir. Suitcase, backpack ve handbag — her sınıf ayrı ayrı tespit edilir, hiçbiri kaçmaz.</p></div></div>
-      <div class="step rv"><span class="step-n">02</span><div><h3>Her bagaj üç saniyede sınıfına girer</h3><p>Tespit edilen her bagaj bounding box alanına göre üç sınıfa ayrılır: Personal Item, Cabin OK, Oversized. Gate kalibrasyonuyla eşikler o kameraya özgü ayarlanır — hata payı minimumdur.</p></div></div>
-      <div class="step rv"><span class="step-n">03</span><div><h3>Kabin dolmadan dolacağını bilir</h3><p>Check-in verisi ve uçak tipi birleştirilir. Boarding henüz devam ederken kabin doluluk oranı ve kapasite aşım noktası hesaplanır — reaktif değil, proaktif.</p></div></div>
-      <div class="step rv"><span class="step-n">04</span><div><h3>Personele söyler: "85. yolcudan itibaren dur"</h3><p>Eşik aşılmadan önce sistem yer ekibine somut ve uygulanabilir aksiyon önerir. Tahmin değil, karar. Gate personeli ne yapacağını tam olarak bilir.</p></div></div>
+      <div class="step rv"><span class="step-n">01</span><div><h3>Yolcu gate'e adım atar atmaz sistem devreye girer</h3><p>Gate kamerası boarding başlar başlamaz frame akışını YOLOv8 modeline iletir. Suitcase, backpack ve handbag — her sınıf ayrı ayrı tespit edilir.</p></div></div>
+      <div class="step rv"><span class="step-n">02</span><div><h3>Her bagaj saniyeler içinde sınıflandırılır</h3><p>Tespit edilen her bagaj bounding box alanına göre üç sınıfa ayrılır: Personal Item, Cabin OK, Oversized. Gate kalibrasyonuyla eşikler kameraya özgü ayarlanır; pilot testlerle doğrulanabilir ölçüm tutarlılığı hedeflenir.</p></div></div>
+      <div class="step rv"><span class="step-n">03</span><div><h3>Kapasite aşımı riski erken görünür olur</h3><p>Check-in verisi ve uçak tipi birleştirilir. Boarding henüz devam ederken baş üstü dolap talebi ve kapasite aşım riski hesaplanır — reaktif değil, proaktif.</p></div></div>
+      <div class="step rv"><span class="step-n">04</span><div><h3>Personele tahmine dayalı aksiyon önerisi sunar</h3><p>Eşik aşılmadan önce sistem yer ekibine somut ve uygulanabilir aksiyon önerir. Gate personeli önerilen aksiyonu net şekilde görür.</p></div></div>
     </div>
   </div>
 </section>
@@ -516,13 +496,13 @@ footer p{font-size:12px;color:var(--muted)}
   <div class="smax">
     <p class="stag rv">// LIVE DEMO</p>
     <h2 class="stitle rv">Sistemi çalışırken gör.</h2>
-    <p class="sdesc rv">Boarding simülasyonu — YOLOv8 tespiti, ByteTrack sayımı, gerçek zamanlı kapasite analizi ve aksiyon üretimi.</p>
+    <p class="sdesc rv">Boarding simülasyonu — YOLOv8 tespiti, ByteTrack sayımı, gerçek zamanlı baş üstü dolap talebi analizi ve aksiyon önerisi.</p>
     <div class="video-wrap rv">
       <div class="video-topbar">
         <div class="mdot" style="background:#ff5f57"></div>
         <div class="mdot" style="background:#febc2e"></div>
         <div class="mdot" style="background:#28c840"></div>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:8px">cabinvision · gate_01 · TK-1453 · simulation</span>
+        <span style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;font-weight:500">cabinvision · gate_01 · TK-1453 · simulation</span>
         <span class="video-live">DEMO</span>
       </div>
       <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden">
@@ -534,7 +514,7 @@ footer p{font-size:12px;color:var(--muted)}
         </iframe>
       </div>
       <div class="video-caption">
-        <span>CabinVision Boarding Simülasyonu · 1280×720 · 30fps</span>
+        <span>CabinVision Boarding Simülasyonu · 1920×1080 · 30fps</span>
         <div class="video-tags">
           <span class="vtag r">YOLOv8n</span>
           <span class="vtag g">ByteTrack</span>
@@ -552,11 +532,11 @@ footer p{font-size:12px;color:var(--muted)}
     <h2 class="stitle rv">Katmanlı AI mimarisi.<br/>Her katman bağımsız.</h2>
     <p class="sdesc rv">Kamera stream'inden operasyonel karara kadar her adım ayrı bir servis olarak çalışır. CV yoğun yükte scale ederken dashboard etkilenmez.</p>
     <div class="tech-grid">
-      <div class="tc rv"><div class="tc-tag">DETECTION</div><div class="tc-title">YOLOv8</div><div class="tc-desc">Gerçek zamanlı nesne tespiti. COCO pretrained model, bagaj tespiti için kalibre edilmiş. 30fps akışta kesintisiz çalışır.</div></div>
-      <div class="tc rv"><div class="tc-tag">TRACKING</div><div class="tc-title">ByteTrack</div><div class="tc-desc">Her bagaja boarding boyunca benzersiz ID. Kamera açısı değişse de aynı bagajı iki kez saymaz.</div></div>
-      <div class="tc rv"><div class="tc-tag">PREDICTION</div><div class="tc-title">Prediction Engine</div><div class="tc-desc">Check-in verisi + uçak tipiyle boarding başlamadan doluluk tahmini üretir. Kamera gelmeden önce sistem zaten hazır.</div></div>
-      <div class="tc rv"><div class="tc-tag">FUSION</div><div class="tc-title">Fusion Motor</div><div class="tc-desc">CV sayımını tahmin katmanıyla birleştirir. İki veri kaynağının çeliştiği durumda gerçek veriyi önceliklendirir.</div></div>
-      <div class="tc rv"><div class="tc-tag">DASHBOARD</div><div class="tc-title">Canlı Dashboard</div><div class="tc-desc">Gate personelinin ekranında gerçek zamanlı doluluk oranı, bagaj dağılımı ve somut aksiyon önerisi.</div></div>
+      <div class="tc rv"><div class="tc-tag">DETECTION</div><div class="tc-title">YOLOv8</div><div class="tc-desc">Gerçek zamanlı nesne tespiti. COCO pretrained model, bagaj tespiti için kalibre edilmiş. Gerçek zamanlı akış için optimize edilmiştir.</div></div>
+      <div class="tc rv"><div class="tc-tag">TRACKING</div><div class="tc-title">ByteTrack</div><div class="tc-desc">Her bagaja boarding boyunca takip ID’si atanır. Amaç, aynı bagajın tekrar sayılma riskini azaltmaktır.</div></div>
+      <div class="tc rv"><div class="tc-tag">PREDICTION</div><div class="tc-title">Prediction Engine</div><div class="tc-desc">Check-in verisi + uçak tipiyle boarding başlamadan baş üstü dolap talebi tahmini üretir. Kamera verisi gelmeden önce sistem ön tahmin katmanını oluşturur.</div></div>
+      <div class="tc rv"><div class="tc-tag">FUSION</div><div class="tc-title">Fusion Motor</div><div class="tc-desc">CV sayımını tahmin katmanıyla birleştirir. İki veri kaynağının çeliştiği durumda canlı gözlem verisini önceliklendirir.</div></div>
+      <div class="tc rv"><div class="tc-tag">DASHBOARD</div><div class="tc-title">Canlı Dashboard</div><div class="tc-desc">Gate personelinin ekranında gerçek zamanlı talep oranı, bagaj dağılımı ve tahmine dayalı aksiyon önerisi.</div></div>
       <div class="tc rv"><div class="tc-tag">CALIBRATION</div><div class="tc-title">Gate Kalibrasyonu</div><div class="tc-desc">Her kameraya özgü bbox eşikleri. Bir kez referans nesneyle ayarla — sistem o gate'e göre çalışmaya başlar.</div></div>
     </div>
   </div>
@@ -566,7 +546,7 @@ footer p{font-size:12px;color:var(--muted)}
 <div class="cta-section" id="contact">
   <div class="cta-glow"></div>
   <h2 class="rv">Kameralar zaten orada.<br/>Eksik olan sadece görmek.</h2>
-  <p class="rv" style="margin-bottom:36px;font-size:16px">CabinVision, Turkish Airlines Terminal Girişim Hızlandırma Programı 2026 kapsamında geliştirilen bir yapay zeka sistemidir. Gate'lerdeki mevcut altyapıya entegre olur — ek donanım gerektirmez.</p>
+  <p class="rv" style="margin-bottom:36px;font-size:16px">CabinVision, Turkish Airlines Terminal Startup Accelerator 2026 program odağına uygun olarak geliştirilen bir PoC/demo projesidir. Uygun kamera altyapısına entegre olacak şekilde tasarlanmıştır — ek donanım ihtiyacını azaltmayı hedefler.</p>
   <div class="rv">
     <a href="mailto:contact@cabinvision.ai" class="btn btn-red">İletişime Geç</a>
     <a href="https://github.com/uuratalay" class="btn btn-outline" target="_blank" style="margin-left:12px">GitHub</a>
@@ -579,16 +559,13 @@ footer p{font-size:12px;color:var(--muted)}
 </footer>
 
 <script>
-// CURSOR
 var cur=document.getElementById('cur');
 document.addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
 
-// SCROLL REVEAL
 var rvEls=document.querySelectorAll('.rv');
 var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:0.1});
 rvEls.forEach(function(el){obs.observe(el)});
 
-// SİMÜLATÖR
 var ucak='narrow';
 var KAP={narrow:120,wide:280};
 var prev={y:168,b:55,o:15,p:50};
@@ -599,16 +576,18 @@ document.getElementById('SO').addEventListener('input',function(){showDelta('o',
 document.getElementById('SP').addEventListener('input',function(){showDelta('p',this.value,'VP',this.value+'%','DP');calc()});
 
 function setType(t){
-    ucak=t;
+  ucak=t;
   document.getElementById('BN').className='tbtn'+(t==='narrow'?' active':'');
   document.getElementById('BW').className='tbtn'+(t==='wide'?' active':'');
+  // Slider üst sınırını uçak tipine bağla
   var sy=document.getElementById('SY');
   var maxY=t==='narrow'?180:380;
   sy.max=maxY;
   if(parseInt(sy.value)>maxY){
+    // Geniş gövdeden dar gövdeye geçerken değer sessizce düşmesin;
+    // aynı slider etkileşimindeki gibi delta geri bildirimi çalışsın.
     sy.value=maxY;
-    document.getElementById('VY').textContent=maxY;
-    prev.y=maxY;
+    showDelta('y',maxY,'VY',maxY,'DY');
   }
   calc();
 }
@@ -620,54 +599,111 @@ function showDelta(key,raw,valId,display,deltaId){
   prev[key]=cur2;
 }
 
+// Demo-only varsayımlar: Bunlar operasyonel doğruluk katsayısı değildir.
+// Amaç, frontend simülatöründe prediction ve live observation akışlarını ayrıştırıp
+// karar destek mantığını anlaşılır şekilde göstermektir.
+var DEMO_CABIN_SHARE_OF_NON_OVERSIZED=0.75;
+var DEMO_LIVE_OBSERVATION_DEVIATION=1.08;
+
 function calc(){
   var y=parseInt(document.getElementById('SY').value);
   var b=parseInt(document.getElementById('SB').value);
   var o=parseInt(document.getElementById('SO').value);
   var p=parseInt(document.getElementById('SP').value);
   var kap=KAP[ucak];
-  var beyanEden=Math.round(y*b/100);
-  var topTahmin=beyanEden+Math.round((y-beyanEden)*0.40);
-  var topGercek=Math.round(topTahmin*(p/100));
-  var overS=Math.round(topGercek*o/100);
-  var cabinS=Math.round(topGercek*(1-o/100)*0.80);
-  var persS=Math.max(topGercek-overS-cabinS,0);
-  var dolP=Math.min(topGercek/kap,1.0);
+
+  // 1) ÖN TAHMİN SİNYALİ
+  // Slider b artık doğrudan PNR/Check-in kaynaklı bagaj eğilimini temsil eder.
+  // Eski "beyan etmeyenlerin %40'ı bagaj getirir" sabiti kaldırıldı.
+  var projectedPhysicalBags=Math.round(y*(b/100));
+
+  // 2) CANLI GÖZLEM SİMÜLASYONU
+  // Kamera sayımı tahmine kusursuz bağlanmaz; kontrollü demo sapması ile
+  // prediction ve live observation arasında fark oluşabilir.
+  var observedTotalPhysicalBags=Math.round(projectedPhysicalBags*DEMO_LIVE_OBSERVATION_DEVIATION);
+  var observedAtCurrentBoarding=Math.round(observedTotalPhysicalBags*(p/100));
+
+  // 3) GÖZLENEN BAGAJ DAĞILIMI
+  var overS=Math.round(observedAtCurrentBoarding*(o/100));
+  var observedRemaining=Math.max(observedAtCurrentBoarding-overS,0);
+  var cabinS=Math.round(observedRemaining*DEMO_CABIN_SHARE_OF_NON_OVERSIZED);
+  var persS=Math.max(observedRemaining-cabinS,0);
+
+  // Baş Üstü Dolap Talebi = Oversized + Cabin OK. Personal Item dahil değildir.
+  var talepGercek=overS+cabinS;
+
+  // 4) TAHMİNİ FİNAL BAGAJ DAĞILIMI
+  var projectedOversized=Math.round(projectedPhysicalBags*(o/100));
+  var projectedRemaining=Math.max(projectedPhysicalBags-projectedOversized,0);
+  var projectedCabin=Math.round(projectedRemaining*DEMO_CABIN_SHARE_OF_NON_OVERSIZED);
+  var projectedPersonal=Math.max(projectedRemaining-projectedCabin,0);
+  var talepTahmin=projectedOversized+projectedCabin;
+
+  // 5) RİSK ORANLARI — metinde %100 üstü değerler korunur.
+  var dolP=talepGercek/kap;
   var dolPct=Math.round(dolP*100);
-  var tahP=Math.min(topTahmin/kap,1.0);
+  var tahP=talepTahmin/kap;
   var tahPct=Math.round(tahP*100);
+  var riskRatio=Math.max(dolP,tahP);
+  var sev=riskRatio>=0.90?'critical':riskRatio>=0.75?'warning':'ok';
+  var riskSource=tahP>=dolP?'projected':'observed';
+  var observedPct=dolPct;
+  var projectedPct=tahPct;
+  var riskPct=Math.round(riskRatio*100);
+
+  // 6) AKSİYON PENCERESİ
   var kritik=null;
-  if(dolP>=0.90&&tahP>0){kritik=Math.min(Math.max(Math.round(kap/(tahP*y)*y),1),y)}
-  var sev=dolP>=0.90?'critical':dolP>=0.75?'warning':'ok';
+  var remainingCap=Math.max(kap-talepGercek,0);
+  var remainingPass=Math.max(y-Math.round(y*(p/100)),1);
+  var expectedPerPass=(talepTahmin-talepGercek)/remainingPass;
+  if(sev!=='ok'&&expectedPerPass>0){
+    kritik=Math.min(Math.max(Math.round(remainingCap/expectedPerPass),1),remainingPass);
+  }
+
   var rc=sev==='critical'?'var(--red)':sev==='warning'?'var(--amber)':'var(--green)';
   var ico={ok:'✓',warning:'⚠',critical:'🚨'};
-  var guven=b>=70?'yüksek':b>=40?'orta':'düşük';
+  // Güven, beyan oranından değil boarding ilerlemesinden türetilir.
+  var guven=p>=70?'yüksek':p>=35?'orta':'düşük';
+  var riskLabel=riskSource==='projected'?'Tahmini final talep':'Gözlenen talep';
+  var actionWindow=kritik?kritik+' yolcu içinde':(sev==='critical'?'şimdi':'bir sonraki boarding grubunda');
 
   // Banner
   var ban=document.getElementById('BAN');ban.className='banner '+sev;
   document.getElementById('BICO').textContent=ico[sev];
   var bs=document.getElementById('BSTA');bs.className='b-sta '+sev;
   bs.textContent=sev==='ok'?'NORMAL':sev==='warning'?'DİKKAT — EŞİK YAKLAŞIYOR':'KRİTİK — KAPASİTE AŞIMI';
-  document.getElementById('BMSG').textContent=sev==='ok'?'Kabin doluluk %'+dolPct+'. '+overS+' oversized bagaj normal sınırda.':sev==='warning'?'Doluluk %'+dolPct+' uyarı eşiğini geçti. '+overS+' oversized bagaj izlenmeli.':'Doluluk %'+dolPct+'. '+(kritik?kritik+'. yolcudan itibaren oversized bagajları check-in\'e yönlendir.':'Acil müdahale.');
-  var bp=document.getElementById('BPCT');bp.className='b-pct '+sev;bp.textContent=dolPct+'%';
-  document.getElementById('BCAP').textContent=topGercek+' / '+kap+' bagaj';
+  document.getElementById('BMSG').textContent=
+    sev==='ok'?'Gözlenen talep %'+observedPct+', tahmini final %'+projectedPct+'. Baş üstü dolap talebi kapasite içinde görünüyor.':
+    sev==='warning'?riskLabel+' %'+riskPct+'. Uyarı eşiği aşılıyor; gate-check hazırlığı önerilir.':
+    riskLabel+' %'+riskPct+'. Kapasite aşımı bekleniyor; gate-check hazırlığı başlat.';
+  var bp=document.getElementById('BPCT');bp.className='b-pct '+sev;
+  bp.textContent=riskPct+'%';
+  document.getElementById('BCAP').textContent='Gözlenen '+talepGercek+' / '+kap+' · Final '+talepTahmin+' / '+kap;
 
   // Metrikler
   document.getElementById('OD').className='out '+(sev==='critical'?'r':sev==='warning'?'a':'g');
-  var ovd=document.getElementById('OVD');ovd.style.color=rc;ovd.textContent=dolPct+'%';
-  document.getElementById('OSD').textContent=sev==='critical'?'kritik':sev==='warning'?'uyarı':'normal';
+  var ovd=document.getElementById('OVD');ovd.style.color=rc;ovd.textContent=riskPct+'%';
+  document.getElementById('OSD').textContent='Gözlenen %'+observedPct+' · Final %'+projectedPct;
+
   document.getElementById('OO').className='out '+(overS>10?'r':overS>5?'a':'');
-  var ovo=document.getElementById('OVO');ovo.style.color=overS>10?'var(--red)':overS>5?'var(--amber)':'var(--text)';ovo.textContent=overS;
-  document.getElementById('OK2').className='out '+(kritik?'r':'');
-  var ovk=document.getElementById('OVK');ovk.style.color=kritik?'var(--red)':'var(--text)';ovk.textContent=kritik?kritik+'.':'—';
-  document.getElementById('OSK').textContent=kritik?'yolcudan yönlendir':'sorun yok';
+  var ovo=document.getElementById('OVO');
+  ovo.style.color=overS>10?'var(--red)':overS>5?'var(--amber)':'var(--text)';
+  ovo.textContent=overS;
 
-  // Kapasite barı
+  document.getElementById('OK2').className='out '+(kritik||sev==='critical'?'r':'');
+  var ovk=document.getElementById('OVK');
+  ovk.style.color=sev!=='ok'?'var(--red)':'var(--text)';
+  ovk.textContent=sev==='ok'?'—':(kritik?kritik+'.':'şimdi');
+  document.getElementById('OSK').textContent=sev==='ok'?'öneri yok':(kritik?'yolcu içinde':'aksiyon önerilir');
+
+  // Kapasite barı — bar görsel olarak 100'de dolar, metin gerçek oranı gösterir.
   var cc=document.getElementById('CC');cc.className='cap-card '+(sev==='critical'?'r':sev==='warning'?'a':'');
-  var cf=document.getElementById('CF');cf.style.width=dolPct+'%';cf.style.background=rc;
-  document.getElementById('CD').textContent=topGercek+' / '+kap+' · %'+dolPct;
+  var cf=document.getElementById('CF');
+  cf.style.width=Math.min(riskPct,100)+'%';
+  cf.style.background=rc;
+  document.getElementById('CD').textContent='Gözlenen '+talepGercek+' / '+kap+' (%'+observedPct+') · Final '+talepTahmin+' / '+kap+' (%'+projectedPct+')';
 
-  // Bagaj barlar
+  // Bagaj barları — canlı gözlem dağılımı
   var mx=Math.max(overS,cabinS,persS,1);
   document.getElementById('BBO').style.width=(overS/mx*100)+'%';
   document.getElementById('BBC').style.width=(cabinS/mx*100)+'%';
@@ -676,28 +712,39 @@ function calc(){
   document.getElementById('BCC').textContent=cabinS;
   document.getElementById('BCP').textContent=persS;
 
-  // Aksiyon
-  var ac=document.getElementById('AC');var ps=ac.dataset.s||'ok';ac.dataset.s=sev;
-  if(sev==='critical'&&ps!=='critical'){ac.className='ac critical shk';setTimeout(function(){ac.className='ac critical'},500)}else{ac.className='ac '+sev}
+  // Aksiyon kartı
+  var ac=document.getElementById('AC');var ps2=ac.dataset.s||'ok';ac.dataset.s=sev;
+  if(sev==='critical'&&ps2!=='critical'){ac.className='ac critical shk';setTimeout(function(){ac.className='ac critical'},500)}
+  else{ac.className='ac '+sev}
   document.getElementById('AI').textContent=ico[sev];
   var at=document.getElementById('AT');at.className='ac-tit '+sev;
-  at.textContent=sev==='ok'?'NORMAL — BOARDING DEVAM EDİYOR':sev==='warning'?'DİKKAT — YAKLAŞAN KAPASİTE EŞİĞİ':'KRİTİK — ANINDA MÜDAHALE GEREKİYOR';
-  document.getElementById('AM').textContent=sev==='ok'?'Kabin kapasitesi %'+dolPct+' seviyesinde. '+overS+' oversized bagaj standart sınırda.':sev==='warning'?'Doluluk %'+dolPct+' uyarı eşiğini geçti. '+overS+' oversized bagaj tespit edildi. Boarding\'in geri kalanını yakından izle.':'Doluluk %'+dolPct+'. '+(kritik?kritik+'. yolcudan itibaren büyük bagajları check-in\'e yönlendir.':'Acil müdahale başlat.');
-  var th='<span class="atag '+(sev==='critical'?'r':sev==='warning'?'a':'g')+'">DOLULUK %'+dolPct+'</span>';
+  at.textContent=sev==='ok'?'NORMAL — BOARDING DEVAM EDİYOR':
+    sev==='warning'?'DİKKAT — YAKLAŞAN KAPASİTE EŞİĞİ':
+    'KRİTİK — ANINDA MÜDAHALE GEREKİYOR';
+  document.getElementById('AM').textContent=
+    sev==='ok'?'Gözlenen talep %'+observedPct+', tahmini final %'+projectedPct+'. Boarding devam edebilir.':
+    sev==='warning'?riskLabel+' %'+riskPct+'. Büyük kabin bagajları için gate-check hazırlığını '+actionWindow+' planla.':
+    riskLabel+' %'+riskPct+'. Kapasite aşımı bekleniyor; büyük kabin bagajları için gate-check etiketleme başlat.';
+
+  var th='<span class="atag '+(sev==='critical'?'r':sev==='warning'?'a':'g')+'">RİSK %'+riskPct+'</span>';
+  th+='<span class="atag m">GÖZLENEN %'+observedPct+'</span>';
+  th+='<span class="atag m">TAHMİNİ FİNAL %'+projectedPct+'</span>';
   th+='<span class="atag '+(overS>8?'r':overS>4?'a':'g')+'">OVERSIZED '+overS+'</span>';
   th+='<span class="atag m">BOARDING %'+p+'</span>';
   th+='<span class="atag m">GÜVEN '+guven+'</span>';
-  th+='<span class="atag m">'+(ucak==='narrow'?'DAR GÖVDE':'GENİŞ GÖVDE')+' · '+kap+'</span>';
+  th+='<span class="atag m">'+(ucak==='narrow'?'DAR GÖVDE':'GENİŞ GÖVDE')+' · Baş Üstü Kapasite: '+kap+' bagaj</span>';
   document.getElementById('ATAGS').innerHTML=th;
 
-  // Karşılaştırma
-  document.getElementById('C1').style.width=tahPct+'%';document.getElementById('C2').style.width=dolPct+'%';
-  document.getElementById('C1V').textContent=tahPct+'%';document.getElementById('C2V').textContent=dolPct+'%';
-  var diff=dolPct-tahPct;var de=document.getElementById('CDIFF');
-  de.textContent=diff>0?'+'+diff+'% sapma':diff<0?diff+'% sapma':'eşit';
+  // Karşılaştırma — projection ve gözlem ayrımı
+  document.getElementById('C1').style.width=Math.min(tahPct,100)+'%';
+  document.getElementById('C2').style.width=Math.min(dolPct,100)+'%';
+  document.getElementById('C1V').textContent=tahPct+'%';
+  document.getElementById('C2V').textContent=dolPct+'%';
+  var diff=projectedPct-observedPct;
+  var de=document.getElementById('CDIFF');
+  de.textContent=diff>0?'+'+diff+'% final riski':diff<0?diff+'% final farkı':'eşit';
   de.style.color=diff>10?'var(--red)':diff>0?'var(--amber)':'var(--green)';
 }
-
 calc();
 </script>
 </body>
