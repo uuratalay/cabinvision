@@ -426,7 +426,7 @@ footer p{font-size:12px;color:var(--muted)}
           </div>
           <div class="sg">
             <div class="sh"><span class="sn">TOPLAM YOLCU</span><span><span class="sv" id="VY">168</span><span class="sdelta" id="DY"></span></span></div>
-            <input type="range" id="SY" min="60" max="350" value="168">
+            <input type="range" id="SY" min="60" max="180" value="168">
           </div>
         </div>
         <div>
@@ -599,9 +599,17 @@ document.getElementById('SO').addEventListener('input',function(){showDelta('o',
 document.getElementById('SP').addEventListener('input',function(){showDelta('p',this.value,'VP',this.value+'%','DP');calc()});
 
 function setType(t){
-  ucak=t;
+    ucak=t;
   document.getElementById('BN').className='tbtn'+(t==='narrow'?' active':'');
   document.getElementById('BW').className='tbtn'+(t==='wide'?' active':'');
+  var sy=document.getElementById('SY');
+  var maxY=t==='narrow'?180:380;
+  sy.max=maxY;
+  if(parseInt(sy.value)>maxY){
+    sy.value=maxY;
+    document.getElementById('VY').textContent=maxY;
+    prev.y=maxY;
+  }
   calc();
 }
 
