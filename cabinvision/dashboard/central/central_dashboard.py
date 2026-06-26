@@ -185,28 +185,28 @@ for i, gate_id in enumerate(GATE_IDS):
                 {ucus.ucus_no if ucus else '—'} &nbsp;|&nbsp; {ucus.hat if ucus else '—'}
             </div>
             <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
-                <span>Doluluk: <strong style="color:{bar_color}">%{doluluk}</strong></span>
+                <span>Talep: <strong style="color:{bar_color}">%{doluluk}</strong></span>
                 <span style="color:#8892a4">{yolcu}/{ucus.toplam_yolcu if ucus else '—'} yolcu</span>
             </div>
             <div class="pbar-bg">
                 <div class="pbar-fill" style="width:{min(doluluk,100)}%;background:{bar_color}"></div>
             </div>
-            <div style="font-size:11px;color:#8892a4;margin-top:6px" title="Oversized + Cabin OK = Baş Üstü Dolabı (doluluğa dahil) | Personal = Koltuk Altı (doluluğa dahil DEĞİL)">
+            <div style="font-size:11px;color:#8892a4;margin-top:6px" title="Oversized + Cabin OK = Baş Üstü Dolabı (talebe dahil) | Personal = Koltuk Altı (talebe dahil DEĞİL)">
                 <span style="color:#e53e3e">▲ {dagilim.get('oversized',0)} Oversize</span> &nbsp;
                 <span style="color:#48bb78">▲ {dagilim.get('cabin_ok',0)} Kabin</span> &nbsp;
                 <span style="color:#718096">▲ {dagilim.get('personal_item',0)} Koltuk Altı*</span>
             </div>
-            <div style="font-size:9px;color:#5a6472;margin-top:2px">* Koltuk altı doluluğa dahil değil</div>
+            <div style="font-size:9px;color:#5a6472;margin-top:2px">* Koltuk altı talebe dahil değil</div>
             {f'<div style="font-size:11px;color:#8892a4;margin-top:6px;border-top:1px solid #2d3748;padding-top:6px">{sev_mesaj}</div>' if sev_val != "normal" else ""}
         </div>
         """, unsafe_allow_html=True)
 
 # ── TERMİNAL DOLULUK GRAFİĞİ ──
 st.divider()
-st.markdown("### Terminal Doluluk Genel Bakış")
+st.markdown("### Terminal Baş Üstü Talep Genel Bakış")
 st.caption(
     "Baş Üstü Dolabı (overhead bin doluluğunu belirler) ile Koltuk Altı "
-    "(personal item, doluluğa dahil değil) ayrı renklerle gösterilir."
+    "(personal item, talebe dahil değil) ayrı renklerle gösterilir."
 )
 
 # GEMINI 5. TUR MADDE 1 DÜZELTMESİ (kabul edildi):
@@ -235,14 +235,14 @@ for gid in GATE_IDS:
 fig = go.Figure()
 fig.add_trace(go.Bar(
     x=gate_names, y=bas_ustu_sayilar,
-    name="Baş Üstü Dolabı (doluluğa dahil)",
+    name="Baş Üstü Dolabı (talebe dahil)",
     marker_color=renkler,
     text=[f"%{d}" for d in doluluklar],
     textposition="outside",
 ))
 fig.add_trace(go.Bar(
     x=gate_names, y=koltuk_alti_sayilar,
-    name="Koltuk Altı (doluluğa dahil DEĞİL)",
+    name="Koltuk Altı (talebe dahil DEĞİL)",
     marker_color="#718096",
     opacity=0.55,
 ))
@@ -269,8 +269,8 @@ fig2 = go.Figure(go.Bar(
 fig2.add_hline(y=90, line_dash="dot", line_color="#e53e3e", annotation_text="Kritik %90")
 fig2.add_hline(y=75, line_dash="dot", line_color="#f6ad55", annotation_text="Uyarı %75")
 fig2.update_layout(
-    title="Gate Bazlı Kabin Doluluk (%) — Baş Üstü Dolabı Bazlı",
-    yaxis=dict(range=[0, 115]),
+    title="Gate Bazlı Baş Üstü Dolap Talep Oranı (%)",
+    yaxis=dict(range=[0, max(115, max(doluluklar or [0]) * 1.15)]),
     plot_bgcolor="#0d1117",
     paper_bgcolor="#0d1117",
     font=dict(color="#8892a4", size=11),
@@ -300,7 +300,7 @@ with col_r1:
                 renk = "#e53e3e" if pct >= 90 else "#f6ad55"
                 st.markdown(
                     f"**{ist.hat}** &nbsp; "
-                    f"<span style='color:{renk}'>Ort. %{pct} doluluk</span> &nbsp; "
+                    f"<span style='color:{renk}'>Ort. %{pct} talep</span> &nbsp; "
                     f"<span style='color:#a78bfa'>Oversized: %{over_pct}</span> &nbsp; "
                     f"<span style='color:#8892a4;font-size:12px'>{ist.kayit_sayisi} uçuş · güven %{int(ist.guven_skoru*100)}</span>",
                     unsafe_allow_html=True
@@ -319,7 +319,7 @@ with col_r2:
                 f"<span style='color:{renk};font-size:11px'>●</span> "
                 f"<span style='font-size:12px'>{kayit['gate_id'].split('-')[-1]} | "
                 f"{kayit['ucus_no']} | "
-                f"%{int(kayit['gercek_doluluk']*100)} doluluk</span>",
+                f"%{int(kayit['gercek_doluluk']*100)} talep</span>",
                 unsafe_allow_html=True
             )
     else:

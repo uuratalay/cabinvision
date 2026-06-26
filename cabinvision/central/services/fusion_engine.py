@@ -83,14 +83,10 @@ class KuralBazliFusion(BaseFusionStratejisi):
     ) -> GateAksiyonu:
 
         # Seviye belirleme
-        # Gerçek oran mevcut demand/capacity oranıdır. Tahmin tarafında ise
-        # ham bagaj sayısını kapasiteye bölerek karar motorunu aynı birime
-        # taşıyoruz. Böylece yalnızca sabit anlık doluluğa değil, beklenen
-        # toplam overhead talebine de bakılır.
-        tahmini_talep_orani = min(
-            tahmin.tahmini_toplam_bagaj / max(ucus.dolap_kapasitesi, 1),
-            1.5,
-        )
+        # Gerçek oran mevcut overhead demand/capacity oranıdır. Tahmin tarafında
+        # PredictionEngine artık kırpılmamış talep oranı üretir; bu değer %100
+        # üstüne çıkabilir ve karar motorunda doğrudan kullanılmalıdır.
+        tahmini_talep_orani = tahmin.tahmini_doluluk_orani
         karar_orani = max(gercek_oran, tahmini_talep_orani)
 
         if gercek_oran >= CRITICAL_THRESHOLD:
@@ -102,10 +98,11 @@ class KuralBazliFusion(BaseFusionStratejisi):
         else:
             seviye = DolulukSeviyesi.NORMAL
 
-        # Yönlendirme başlangıcı
+        # Yönlendirme başlangıcı artık yolcu sıra numarası olarak gösterilmez.
+        # Canlı kritik durumda geçmiş tahmin sırasına veya bagaj sayısına dayalı
+        # Yolcu sıra numarasına bağlı mesajlar canlı kritik durumda yanıltıcı olabiliyordu.
+        # Dashboard kararı aksiyon penceresi olarak verir.
         yonlendirme = None
-        if seviye == DolulukSeviyesi.CRITICAL:
-            yonlendirme = tahmin.kritik_yolcu_sirasi or (toplam_sayilan + 5)
 
         mesaj = self._mesaj_uret(
             seviye, gercek_oran, tahmin, yonlendirme, oversized_sayisi
@@ -135,25 +132,20 @@ class KuralBazliFusion(BaseFusionStratejisi):
         pct = int(gercek * 100)
         if seviye == DolulukSeviyesi.NORMAL:
             return (
-                f"NORMAL — Kabin dolulugu %{pct}. "
+                f"NORMAL — Baş üstü dolap talebi %{pct}. "
                 f"Boarding devam edebilir."
             )
         if seviye == DolulukSeviyesi.WARNING:
             return (
-                f"DIKKAT — Kabin dolulugu %{pct}. "
+                f"DİKKAT — Baş üstü dolap talebi %{pct}. "
                 f"{oversized} oversized bagaj tespit edildi. "
-                f"Yakinen izle."
+                f"Boarding akışını yakından izle; gate-check hazırlığı gerekebilir."
             )
         # CRITICAL
-        if yonlendirme:
-            return (
-                f"KRITIK — Kabin dolulugu %{pct}. "
-                f"{yonlendirme}. yolcudan itibaren "
-                f"oversized bagajlari check-in'e yonlendir."
-            )
         return (
-            f"KRITIK — Kapasite asimi. "
-            f"Tum oversized bagajlari check-in'e yonlendir."
+            f"KRİTİK — Baş üstü dolap talebi %{pct}. "
+            f"Mevcut boarding grubunda büyük kabin bagajları için "
+            f"gate-check hazırlığı başlat."
         )
 
 

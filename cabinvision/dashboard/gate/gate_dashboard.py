@@ -301,7 +301,7 @@ with col_scenario:
         help=f"{p_ucak} için gerçekçi koltuk aralığı: {_min_koltuk}-{_max_koltuk}",
     )
     p_beyan = st.slider(
-        "Check-in Beyan Oranı (%)", 10, 95, 55, disabled=sim_calisiyor_simdi,
+        "Ön Tahmin Sinyali (PNR/Check-in) (%)", 10, 95, 55, disabled=sim_calisiyor_simdi,
         key=f"p_beyan_{gate_id}",
     )
     p_over = st.slider(
@@ -337,7 +337,12 @@ else:
 tahmin = st.session_state["gate_tahmins"].get(gate_id)
 if tahmin:
     t_ikon  = "🔴" if tahmin.asim_bekleniyor else ("🟡" if tahmin.tahmini_doluluk_orani > 0.75 else "🟢")
-    t_class = "banner-critical" if tahmin.asim_bekleniyor else "banner-normal"
+    if tahmin.asim_bekleniyor:
+        t_class = "banner-critical"
+    elif tahmin.tahmini_doluluk_orani > 0.75:
+        t_class = "banner-warning"
+    else:
+        t_class = "banner-normal"
     st.markdown(
         f'<div class="{t_class}">'
         f'<strong>{t_ikon} TAHMİN (Boarding öncesi):</strong> {tahmin.aciklama}'
@@ -354,12 +359,12 @@ if ucus:
         st.markdown(
             f'<div class="memory-card">'
             f'<div class="memory-header">🧠 SEFER HAFIZASI — {ucus.hat} hattı geçmişi</div>'
-            f'<span class="memory-stat">Geçmiş ortalama: <b>%{int(hat_ist["ort_doluluk"]*100)}</b></span>'
+            f'<span class="memory-stat">Geçmiş ortalama talep: <b>%{int(hat_ist["ort_doluluk"]*100)}</b></span>'
             f'<span class="memory-stat">Oversized oranı: <b>%{int(hat_ist["ort_oversized"]*100)}</b></span>'
             f'<span class="memory-stat">Veri: <b>{hat_ist["kayit_sayisi"]} uçuş</b></span>'
             f'<span class="memory-stat">Güven: <b style="color:{guven_renk}">%{int(hat_ist["guven_skoru"]*100)}</b></span>'
             f'<div style="font-size:11px;color:#8892a4;margin-top:6px">'
-            f'Bu hattın geçmiş verisi, check-in tahminiyle harmanlanarak yukarıdaki tahmine dahil edildi.'
+            f'Bu hattın geçmiş verisi, ön tahmin sinyaliyle harmanlanarak yukarıdaki tahmine dahil edildi.'
             f'</div></div>',
             unsafe_allow_html=True
         )
@@ -368,7 +373,7 @@ if ucus:
             f'<div class="memory-card" style="opacity:0.6">'
             f'<div class="memory-header">🧠 SEFER HAFIZASI — {ucus.hat} hattı</div>'
             f'<span style="font-size:12px;color:#8892a4">Henüz yeterli geçmiş veri yok (min. 3 uçuş gerekli). '
-            f'Tahmin yalnızca check-in verisine dayanıyor.</span>'
+            f'Tahmin yalnızca ön tahmin sinyaline dayanıyor.</span>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -377,7 +382,7 @@ if ucus:
 yolcu_no  = st.session_state["sim_yolcu_no"].get(gate_id, 0)
 inf       = st.session_state["gate_services"].get(gate_id)
 dagilim   = inf.boyut_dagilimi if inf else {}
-# GEMINI 3. TUR MADDE 3 (B): Kabin doluluğu SADECE overhead bin'i kullanan
+# GEMINI 3. TUR MADDE 3 (B): Baş üstü dolap talebi SADECE overhead bin'i kullanan
 # bagajlardan (cabin_ok + oversized) hesaplanır — personal item koltuk
 # altına gittiği için dolap doluluğunu etkilemez.
 overhead_sayilan = inf.overhead_bin_sayilan if inf else 0
@@ -387,7 +392,7 @@ kapasite  = ucus.dolap_kapasitesi if ucus else 120
 doluluk   = round((overhead_sayilan / kapasite) * 100, 1) if kapasite > 0 else 0
 
 # GEMINI 4. TUR MADDE 2 DÜZELTMESİ (kabul edildi — UX netliği):
-# Eskiden "Toplam Bagaj: 140" ve "Kabin Doluluğu: %83" yan yana gösteriliyordu
+# Eskiden "Toplam Bagaj: 140" ve "Baş Üstü Dolap Talebi: %83" yan yana gösteriliyordu
 # — bu iki sayının neden uyuşmadığı (personal item hariç tutulduğu için)
 # arayüzde açık değildi, jüri/kullanıcı kafası karışabilirdi. Artık iki
 # kategori AYRI ve ETİKETLİ gösteriliyor; doluluk oranının hangi sayıdan
@@ -397,7 +402,7 @@ m1.metric("Geçen Yolcu", f"{yolcu_no}/{ucus.toplam_yolcu if ucus else '—'}")
 m2.metric(
     "🧳 Baş Üstü Dolabı",
     overhead_sayilan,
-    help="Kabin bagajı + Oversized — overhead bin'i kullanan nesneler. Doluluk oranı bu sayıdan hesaplanır.",
+    help="Kabin bagajı + Oversized — overhead bin'i kullanan nesneler. Talep oranı bu sayıdan hesaplanır.",
 )
 m3.metric(
     "🎒 Koltuk Altı",
@@ -405,7 +410,7 @@ m3.metric(
     help="Personal item (sırt çantası, laptop çantası vb.) — THY kuralına göre koltuk altına gider, overhead bin'i kullanmaz.",
 )
 m4.metric(
-    "Kabin Doluluğu",
+    "Baş Üstü Dolap Talebi",
     f"%{doluluk}",
     delta=f"+{doluluk:.1f}%" if doluluk > 0 else None,
     delta_color="inverse" if doluluk > 90 else "normal",
@@ -441,7 +446,7 @@ with col_g1:
         fig.add_trace(go.Scatter(
             x=xs, y=ys,
             mode="lines",
-            name="Gerçek doluluk",
+            name="Gerçek talep oranı",
             line=dict(color="#e53e3e", width=2),
             fill="tozeroy",
             fillcolor="rgba(229,62,62,0.07)"
@@ -461,11 +466,12 @@ with col_g1:
             y=75, line_dash="dot", line_color="#f6ad55",
             annotation_text="Uyarı %75", annotation_position="right",
         )
+        max_y = max(115, max(ys + ([tahmin.tahmini_doluluk_orani * 100] if tahmin else [])) * 1.15)
         fig.update_layout(
-            title="Kabin Doluluk — Gerçek Zamanlı",
+            title="Baş Üstü Dolap Talebi — Gerçek Zamanlı",
             xaxis_title="Yolcu Sırası",
-            yaxis_title="Doluluk (%)",
-            yaxis=dict(range=[0, 115]),
+            yaxis_title="Talep Oranı (%)",
+            yaxis=dict(range=[0, max_y]),
             plot_bgcolor="#0d1117",
             paper_bgcolor="#0d1117",
             font=dict(color="#8892a4", size=11),

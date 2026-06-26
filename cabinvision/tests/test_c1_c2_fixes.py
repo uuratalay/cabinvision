@@ -50,51 +50,43 @@ def test_d4_eski_imkansiz_kombinasyon_artik_engelleniyor():
 
 def test_d5_sim_adim_check_in_oranini_dikkate_aliyor():
     """
-    C2: sim_adim artık her yolcuya otomatik bagaj atamıyor.
-    Bu testte sim_adim'in KULLANDIĞI mantığı (PredictionEngine'in ürettiği
-    tahmini_toplam_bagaj'ı yolcu sayısına bölerek bagaj-getirme olasılığı
-    üretme — GEMINI DÜZELTMESİ sonrası doğru formül) izole olarak doğruluyoruz.
+    C2: sim_adim manuel/dashboard senaryosunda PredictionEngine'in konservatif
+    tahminini değil, kullanıcının slider ile verdiği beyan oranını kullanır.
+
+    Doğru üretim olasılığı:
+        cabin_beyan_sayisi / toplam_yolcu
+
+    PredictionEngine erken risk tahmini üretir; sim_adim ise slider ile kurulan
+    senaryoyu doğrudan simüle eder. Bu ayrım korunmalıdır.
     """
-    mem = FlightMemoryRepository(30)
-    rng0 = random.Random(42)
-    for i in range(10):
-        mem.kayit_ekle(UcusKaydi(
-            ucus_no=f"TK-D{i}", hat="IST-DXB", toplam_bagaj=90,
-            oversized_sayisi=15, cabin_ok_sayisi=60, personal_sayisi=15,
-            doluluk_orani=rng0.uniform(0.65, 0.85), ucak_tipi="narrow_body",
-        ))
-
-    pred = PredictionEngine.create("rule_based", memory=mem)
-
     ucus = UcusBilgisi(
         ucus_no="TK-D5TEST", hat="IST-DXB", ucak_tipi=UcakTipi.NARROW_BODY,
         toplam_yolcu=200, cabin_beyan_sayisi=110, oversized_beyan=20,
-        gate_id="TEST",
+        gate_id="TEST", manuel_senaryo=True,
     )
-    tahmin = pred.tahmin_uret(ucus)
 
-    # DOĞRU formül: tahmini_toplam_bagaj / toplam_yolcu (kapasiteye değil!)
     bagaj_getirme_olasiligi = min(
-        tahmin.tahmini_toplam_bagaj / max(ucus.toplam_yolcu, 1), 1.0
+        ucus.cabin_beyan_sayisi / max(ucus.toplam_yolcu, 1),
+        1.0,
     )
 
+    assert abs(bagaj_getirme_olasiligi - 0.55) < 0.001
     assert 0.0 <= bagaj_getirme_olasiligi <= 1.0, \
         f"Olasılık aralık dışı: {bagaj_getirme_olasiligi}"
 
-    print(f"  OK  D5.1: Bagaj getirme olasılığı doğru formülle türetiliyor "
-          f"(tahmini_toplam_bagaj={tahmin.tahmini_toplam_bagaj} / "
+    print(f"  OK  D5.1: sim_adim slider/beyan oranını kullanıyor "
+          f"(cabin_beyan_sayisi={ucus.cabin_beyan_sayisi} / "
           f"toplam_yolcu={ucus.toplam_yolcu} = %{bagaj_getirme_olasiligi*100:.0f})")
 
 
 def test_d5_gemini_birim_hatasi_artik_yok():
     """
-    GEMINI'NİN BULDUĞU SOMUT KANIT SENARYOSU — birebir doğrulama.
+    GEMINI'NİN BULDUĞU SOMUT KANIT SENARYOSU — tarihsel regresyon testi.
 
-    Gemini'nin örneği: 150 yolcu, kapasite 120, tahmin 90 bagaj olursa
-    tahmini_doluluk_orani = 90/120 = %75 çıkar. Bu %75'i YANLIŞ ŞEKİLDE
-    yolcu başına olasılık olarak kullanırsak: 150*0.75=112.5 bagaj üretilir
-    — tahmin edilenden (90) %25 fazla. Bu test, düzeltme sonrası artık bu
-    sapmanın oluşmadığını doğrudan gösterir.
+    Bu test, tahmini_doluluk_orani değerinin yolcu başına olasılık gibi
+    kullanılmaması gerektiğini gösterir. Mevcut sim_adim manuel senaryoda
+    doğrudan cabin_beyan_sayisi / toplam_yolcu kullanır. Buradaki hesap, eski
+    birim hatasının geri dönmemesi için dokümantasyon/regresyon kanıtıdır.
     """
     # Gemini'nin senaryosunu simüle eden manuel bir DolulukTahmini kuruyoruz
     # (PredictionEngine'in iç hesaplamasını bypass edip doğrudan formülü test ediyoruz)
@@ -170,9 +162,10 @@ def test_d5_553_hatasi_artik_uretilemez():
     )
     tahmin = pred.tahmin_uret(ucus)
 
-    # GEMINI DÜZELTMESİ: doğru formülle olasılık (kapasiteye değil yolcuya bölü)
+    # sim_adim'in mevcut mimarisi: slider/beyan oranı doğrudan üretim
+    # olasılığıdır; PredictionEngine tahmini sadece erken risk sinyalidir.
     bagaj_getirme_olasiligi = min(
-        tahmin.tahmini_toplam_bagaj / max(ucus.toplam_yolcu, 1), 1.0
+        ucus.cabin_beyan_sayisi / max(ucus.toplam_yolcu, 1), 1.0
     )
 
     sim_rng = random.Random(7)
@@ -483,6 +476,78 @@ def test_d5_gemini5_az_veri_durumunda_fallback():
           f"güven={ist_wide_az_veri.guven_skoru:.3f} < normal_güven={ist_normal.guven_skoru:.3f}")
 
 
+
+def test_d6_plato_yok_manuel_senaryo():
+    """
+    REGRESSION TESTİ: %70, %80, %95 slider degerleri birbirinden farkli
+    tahmin uretmeli — eski motor bunlari ~%86'da sabitliyordu (plato hatasi).
+    Manuel senaryo modunda slider sinyali ana belirleyici.
+    """
+    import math as _math
+    from central.services.prediction_engine import PredictionEngine
+    from central.repositories.flight_memory_repository import FlightMemoryRepository
+    from central.models.flight_models import UcusBilgisi, UcakTipi
+
+    engine = PredictionEngine.create("rule_based", memory=FlightMemoryRepository())
+
+    def ucus_olustur(no, beyan_pct):
+        beyan = _math.ceil(180 * beyan_pct / 100)
+        return UcusBilgisi(
+            ucus_no=no, hat="IST-DXB", ucak_tipi=UcakTipi.NARROW_BODY,
+            toplam_yolcu=180, cabin_beyan_sayisi=beyan,
+            oversized_beyan=20, gate_id="G1", manuel_senaryo=True,
+        )
+
+    t70 = engine.tahmin_uret(ucus_olustur("T70", 70))
+    t80 = engine.tahmin_uret(ucus_olustur("T80", 80))
+    t95 = engine.tahmin_uret(ucus_olustur("T95", 95))
+
+    assert t70.tahmini_doluluk_orani < t80.tahmini_doluluk_orani, (
+        f"Plato hatasi: %70 ({t70.tahmini_doluluk_orani:.3f}) >= %80 ({t80.tahmini_doluluk_orani:.3f})"
+    )
+    assert t80.tahmini_doluluk_orani < t95.tahmini_doluluk_orani, (
+        f"Plato hatasi: %80 ({t80.tahmini_doluluk_orani:.3f}) >= %95 ({t95.tahmini_doluluk_orani:.3f})"
+    )
+    # %95 beklenen talep: 171/120 = 1.425, motor 0.85 agirlikla bu sinyali kullaniyor
+    # 0.85*1.425 + kucuk sabitler >= 1.0 olmali
+    assert t95.tahmini_doluluk_orani > 1.0, (
+        f"%95 slider senaryosu talep oranini %100 ustune cikaramadi: {t95.tahmini_doluluk_orani:.3f}"
+    )
+    assert t95.asim_bekleniyor is True
+
+    print(f"  OK  D6.1 (plato yok): t70=%{t70.tahmini_doluluk_orani*100:.0f}, "
+          f"t80=%{t80.tahmini_doluluk_orani*100:.0f}, t95=%{t95.tahmini_doluluk_orani*100:.0f} — "
+          f"dogru siralama, %100 ustuNE cikiyor")
+
+
+def test_d6_talep_orani_100_ustuNE_cikabilir():
+    """
+    REGRESSION TESTİ: 171 beyan / 120 kapasite = %142.5 talep orani.
+    tahmini_doluluk_orani bu degeri min(1.0) ile KIRMAMALI.
+    """
+    from central.services.prediction_engine import PredictionEngine
+    from central.repositories.flight_memory_repository import FlightMemoryRepository
+    from central.models.flight_models import UcusBilgisi, UcakTipi
+
+    engine = PredictionEngine.create("rule_based", memory=FlightMemoryRepository())
+    ucus = UcusBilgisi(
+        ucus_no="OVER", hat="IST-DXB", ucak_tipi=UcakTipi.NARROW_BODY,
+        toplam_yolcu=180, cabin_beyan_sayisi=171,
+        oversized_beyan=40, gate_id="G1", manuel_senaryo=True,
+    )
+    tahmin = engine.tahmin_uret(ucus)
+
+    assert tahmin.tahmini_doluluk_orani > 1.0, (
+        f"Talep orani kIRPILMIS: {tahmin.tahmini_doluluk_orani:.3f} <= 1.0 — "
+        f"min(...,1.0) hatasi geri donmus olabilir"
+    )
+    assert tahmin.asim_bekleniyor is True
+    assert tahmin.tahmini_toplam_bagaj <= ucus.toplam_yolcu, (
+        f"Bagaj sayisi yolcu sayisini asti: {tahmin.tahmini_toplam_bagaj} > {ucus.toplam_yolcu}"
+    )
+    print(f"  OK  D6.2 (talep orani): {tahmin.tahmini_doluluk_orani:.3f} > 1.0, "
+          f"bagaj={tahmin.tahmini_toplam_bagaj}/{ucus.toplam_yolcu} — dogru")
+
 if __name__ == "__main__":
     print("\n=== C1 + C2 Düzeltme Doğrulama Testleri ===\n")
     tests = [
@@ -498,6 +563,8 @@ if __name__ == "__main__":
         test_d5_gemini5_ucak_tipi_filtreleme,
         test_d5_gemini5_az_veri_durumunda_fallback,
         test_d5_553_hatasi_artik_uretilemez,
+        test_d6_plato_yok_manuel_senaryo,
+        test_d6_talep_orani_100_ustuNE_cikabilir,
     ]
     passed = failed = 0
     for t in tests:

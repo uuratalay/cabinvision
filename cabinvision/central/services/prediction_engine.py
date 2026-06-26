@@ -1,13 +1,19 @@
 # central/services/prediction_engine.py
 #
-# MİMARİ KARAR: Strategy Pattern (tekrar)
-# Şimdi kural bazlı çalışır. Yeterli veri birikince ML stratejisine geçiş.
-# PredictionEngine hangi stratejiyi kullandığını bilmez.
+# TAHMİN MOTORU — SLIDER TABANLI, KIRPMASIZ TALEP ORANI
 #
-# SEFER HAFIZASI entegrasyonu:
-# Tahminin ana omurgası sefer hafızası + uçak kapasitesidir.
-# Check-in/PNR tarafındaki kabin bagaj sinyali doğrulanmadığı için ana
-# belirleyici değildir; varsa düşük ağırlıklı opsiyonel feature olarak kullanılır.
+# TEMEL KAVRAM AYRIMI:
+#   Fiziksel doluluk  : %100'de durur (dolap taşamaz)
+#   Baş üstü dolap talebi / kapasite oranı : %100 ÜSTÜNe ÇIKABİLİR
+#   → 171 beyan / 120 kapasite = %142.5 talep oranı — bu sistemin ölçtüğü değer
+#
+# Bu yüzden tahmini_doluluk_orani alanı KIRPILMAZ (min(..., 1.0) YOK).
+# Alan adı geriye dönük uyumluluk için korunur ama "fiziksel doluluk" değil
+# "baş üstü dolap talebi / kapasite" oranını taşır.
+#
+# İKİ MOD:
+#   operasyonel mod  : PNR/beyan sinyali düşük güvenilirlikte olabilir
+#   manuel/demo mod  : kullanıcı slider ile senaryo kuruyor; slider ana sinyal
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -24,24 +30,11 @@ from central.repositories.flight_memory_repository import (
 
 logger = logging.getLogger(__name__)
 
-# Alert eşikleri
 WARNING_THRESHOLD  = 0.75
 CRITICAL_THRESHOLD = 0.90
 
-# Prototip konfigürasyonu — gizli karar sabiti değil, açık/kalibre edilebilir değerler.
-# Gerçek operasyonel veri geldiğinde bu değerler backtest ile ayarlanmalıdır.
-VARSAYILAN_BAGAJ_DOLULUK_ORANI = 0.55
-GECMIS_MAX_AGIRLIK = 0.70
-GECMIS_HEDEF_KAYIT = 50
-PNR_OPSIYONEL_AGIRLIK = 0.15
-MIN_TIP_ESLESEN_KAYIT = 3
-
 
 class BaseTahminStratejisi(ABC):
-    """
-    Tüm tahmin stratejilerinin soyut temeli.
-    Override zorunlu: tahmin_uret()
-    """
 
     @abstractmethod
     def tahmin_uret(
@@ -55,62 +48,36 @@ class BaseTahminStratejisi(ABC):
         self,
         kapasite: int,
         toplam_yolcu: int,
-        doluluk_orani: float,
+        talep_orani: float,
     ) -> Optional[int]:
-        """Kapasitenin dolacağı yolcu sırası."""
-        if doluluk_orani < WARNING_THRESHOLD:
+        """Kapasitenin dolacağı tahmini yolcu sırası."""
+        if talep_orani < WARNING_THRESHOLD:
             return None
-        if toplam_yolcu == 0 or doluluk_orani == 0:
+        if toplam_yolcu == 0 or talep_orani == 0:
             return None
-        sira = int(kapasite / (doluluk_orani * toplam_yolcu) * toplam_yolcu)
+        sira = int(kapasite / (talep_orani * toplam_yolcu) * toplam_yolcu)
         return min(max(sira, 1), toplam_yolcu)
-
-    def _guven_hesapla(
-        self,
-        ucus: UcusBilgisi,
-        hat_istatistigi: Optional[HatIstatistigi],
-    ) -> float:
-        """
-        Tahminin güven skoru.
-
-        Check-in beyanı artık ana güven kaynağı değildir; çünkü kabin bagajı
-        beyanının gerçek sistemde bulunup bulunmadığı doğrulanmamıştır. Güven
-        öncelikle sefer hafızası kayıt sayısı/güven skorundan gelir.
-        """
-        guven = 0.35  # düşük ama sıfır olmayan prototip taban güveni
-        if hat_istatistigi:
-            guven += hat_istatistigi.guven_skoru * 0.50
-        if ucus.cabin_beyan_sayisi > 0:
-            guven += 0.05  # opsiyonel PNR/beyan sinyali varlığı
-        return round(min(guven, 0.95), 3)
-
-    def _gecmis_agirlik_hesapla(
-        self,
-        hat_istatistigi: Optional[HatIstatistigi],
-    ) -> float:
-        """Kayıt sayısına göre açıklanabilir geçmiş ağırlığı."""
-        if not hat_istatistigi or hat_istatistigi.kayit_sayisi < MIN_TIP_ESLESEN_KAYIT:
-            return 0.0
-        return round(
-            min(
-                GECMIS_MAX_AGIRLIK,
-                (hat_istatistigi.kayit_sayisi / GECMIS_HEDEF_KAYIT) * GECMIS_MAX_AGIRLIK,
-            ),
-            3,
-        )
 
 
 class KuralBazliStrateji(BaseTahminStratejisi):
     """
-    Kural tabanlı tahmin.
+    Kural tabanlı tahmin motoru — kirpmasiz talep orani.
 
-    Formül:
-    - Ana sinyal: hat/ucak tipi sefer hafızası
-    - Fallback: açıkça işaretli prototip varsayımı
-    - Opsiyonel sinyal: doğrulanmamış check-in/PNR beyanı düşük ağırlıkla
+    Formül (manuel/demo mod — slider ana sinyal):
+        talep_orani = cabin_beyan_sayisi / kapasite   [KIRPILMAZ]
 
-    Eski `%40 beyan etmeyen getirir` sabiti kaldırıldı; çünkü doğrulanmamış
-    veriyi ana karar girdisi yapıyordu.
+    Formül (operasyonel mod — sefer hafizasi da kullanilir):
+        talep_orani = agirlikli_ortalama(varsayilan, gecmis, slider_sinyali)
+
+    NEDEN KIRPILMIYOR?
+        171 beyan / 120 kapasite = 1.425 → %142.5 talep oranı.
+        min(1.425, 1.0) = 1.0 yapmak, "sistemin %95 ile %70'i ayırt etmemesi"
+        sorununu yaratır. %95 slider senaryosu kesinlikle %70'ten yüksek
+        tahmin üretmeli.
+
+    OPERASYONEL vs MANUEL AYRIMI:
+        ucus.manuel_senaryo=True ise slider sinyali ağırlığı 0.85'e çıkar,
+        sefer hafızası en fazla 0.05 ağırlık alır.
     """
 
     def tahmin_uret(
@@ -119,123 +86,149 @@ class KuralBazliStrateji(BaseTahminStratejisi):
         hat_istatistigi: Optional[HatIstatistigi],
     ) -> DolulukTahmini:
 
-        kapasite = ucus.dolap_kapasitesi
+        kapasite     = ucus.dolap_kapasitesi
+        toplam_yolcu = max(ucus.toplam_yolcu, 1)
+        beyan        = ucus.cabin_beyan_sayisi
 
-        # 1) Fallback: veri yoksa açıkça işaretli prototip varsayımı.
-        varsayilan_doluluk = VARSAYILAN_BAGAJ_DOLULUK_ORANI
+        # ── SLIDER SİNYALİ (kapasite bazlı talep oranı — kirpilmaz) ──
+        # beyan_orani_yolcu = beyan / toplam_yolcu   → "yolcu başına bagaj ihtimali"
+        # talep_orani_kapasite = beyan / kapasite    → "kapasiteye göre baskı"
+        # Bu ikisi birbirinden farklıdır; burada kapasite bazlı olan kullanılır
+        # çünkü "dolap talebinin kapasiteye oranı" sistemin ölçtüğü metriktir.
+        slider_talep = beyan / max(kapasite, 1)  # KIRPILMAZ — >1.0 olabilir
 
-        # 2) Ana sinyal: sefer hafızası. Kayıt sayısına göre dinamik ağırlık.
-        gecmis_agirlik = self._gecmis_agirlik_hesapla(hat_istatistigi)
-        gecmis_doluluk = (
-            hat_istatistigi.ort_doluluk
-            if hat_istatistigi and hat_istatistigi.kayit_sayisi >= MIN_TIP_ESLESEN_KAYIT
-            else varsayilan_doluluk
-        )
+        if getattr(ucus, "manuel_senaryo", False):
+            # MANUEL/DEMO MOD: kullanıcı senaryoyu bizzat kurdu.
+            # Slider sinyali neredeyse tek belirleyici.
+            # Sefer hafızası bağlam sinyali olarak çok küçük ağırlıkla kalır.
+            slider_agirlik = 0.85
+            gecmis_agirlik = 0.05
+            varsayilan_agirlik = 1.0 - slider_agirlik - gecmis_agirlik  # = 0.10
 
-        # 3) Check-in / slider sinyali.
-        # Beyan sayisi yolcu sayisina bolunur (kapasiteye degil) -- bu sayede
-        # slider %95e cekildiginde pnr_doluluk ~%95 cikar.
-        # Beyan orani yuksekse agirlik da artar (max 0.60) -- sefer hafizasini
-        # override edebilir, boylece slider demo amaciyla gercekci sonuc verir.
-        if ucus.cabin_beyan_sayisi > 0 and ucus.toplam_yolcu > 0:
-            beyan_oran = ucus.cabin_beyan_sayisi / ucus.toplam_yolcu
-            pnr_doluluk = min(beyan_oran, 1.0)
-            # Beyan orani yukseldikce agirlik artar (0.15 -> 0.60)
-            pnr_agirlik = min(0.15 + beyan_oran * 0.45, 0.60)
+            gecmis_talep = (
+                hat_istatistigi.ort_doluluk
+                if hat_istatistigi and hat_istatistigi.kayit_sayisi >= 3
+                else 0.55
+            )
+            varsayilan_talep = 0.55
+
+            talep_orani = (
+                slider_talep      * slider_agirlik
+                + gecmis_talep    * gecmis_agirlik
+                + varsayilan_talep * varsayilan_agirlik
+            )
+
+            logger.debug(
+                f"[{ucus.ucus_no}] Manuel mod: slider={slider_talep:.3f}*{slider_agirlik}, "
+                f"gecmis={gecmis_talep:.3f}*{gecmis_agirlik}"
+            )
+
         else:
-            pnr_agirlik = 0.0
-            pnr_doluluk = varsayilan_doluluk
+            # OPERASYONEl MOD: PNR/beyan sinyali doğrulanmamış olabilir.
+            # Sefer hafızası daha yüksek ağırlık alır.
+            varsayilan_talep = 0.55
 
-        varsayilan_agirlik = max(0.0, 1.0 - gecmis_agirlik - pnr_agirlik)
-        doluluk = (
-            varsayilan_doluluk * varsayilan_agirlik
-            + gecmis_doluluk * gecmis_agirlik
-            + pnr_doluluk * pnr_agirlik
-        )
+            gecmis_agirlik = 0.0
+            if hat_istatistigi and hat_istatistigi.kayit_sayisi >= 3:
+                gecmis_agirlik = round(
+                    min(0.60, (hat_istatistigi.kayit_sayisi / 50) * 0.60), 3
+                )
+            gecmis_talep = (
+                hat_istatistigi.ort_doluluk
+                if hat_istatistigi and hat_istatistigi.kayit_sayisi >= 3
+                else varsayilan_talep
+            )
 
-        logger.debug(
-            f"[{ucus.ucus_no}] Tahmin harmanlama: "
-            f"varsayilan={varsayilan_doluluk:.2f}*{varsayilan_agirlik:.2f}, "
-            f"gecmis={gecmis_doluluk:.2f}*{gecmis_agirlik:.2f}, "
-            f"pnr={pnr_doluluk:.2f}*{pnr_agirlik:.2f}"
-        )
+            slider_agirlik = 0.15 if beyan > 0 else 0.0
+            varsayilan_agirlik = max(0.0, 1.0 - gecmis_agirlik - slider_agirlik)
 
-        doluluk = round(min(doluluk, 1.0), 3)
-        asim    = doluluk >= CRITICAL_THRESHOLD
-        guven   = self._guven_hesapla(ucus, hat_istatistigi)
+            talep_orani = (
+                varsayilan_talep * varsayilan_agirlik
+                + gecmis_talep   * gecmis_agirlik
+                + slider_talep   * slider_agirlik
+            )
 
-        kritik_sira = self._kritik_sira_hesapla(
-            ucus.dolap_kapasitesi, ucus.toplam_yolcu, doluluk
-        )
+            logger.debug(
+                f"[{ucus.ucus_no}] Operasyonel mod: slider={slider_talep:.3f}*{slider_agirlik}, "
+                f"gecmis={gecmis_talep:.3f}*{gecmis_agirlik}, "
+                f"varsayilan={varsayilan_talep:.3f}*{varsayilan_agirlik:.3f}"
+            )
 
-        aciklama = self._aciklama(doluluk, kritik_sira, asim, ucus)
+        # talep_orani KIRPILMAZ — %100 üstüne çıkabilir
+        talep_orani = round(talep_orani, 3)
 
-        # GEMINI DÜZELTMESİ (3. tur, madde 1) — kritik kenar durumu (edge case):
-        # Sefer hafızası ağırlığı yüksekken (bkz. Madde A5) ve yolcu sayısı
-        # DÜŞÜK, kapasite YÜKSEK olduğunda (örnek: wide body kapasite=400,
-        # yolcu=30, geçmiş ortalama=%80), düzeltilmemiş hesap şunu üretir:
-        # ceil(0.80*400)=320 bagaj — ama uçakta sadece 30 yolcu var, 320
-        # bagaj fiziksel olarak imkansız. Bu yüzden tahmin edilen toplam
-        # bagaj sayısı, mevcut yolcu sayısını AŞAMAZ (clamping).
-        tahmini_toplam_bagaj = min(
-            math.ceil(doluluk * ucus.dolap_kapasitesi),
-            ucus.toplam_yolcu
-        )
+        # Tahmini toplam bagaj: kapasiteye göre normalize, ama yolcu sayısını aşamaz
+        # (1 yolcu başına en fazla 1 baş üstü bagaj varsayımı)
+        tahmini_bas_ustu = math.ceil(talep_orani * kapasite)
+        tahmini_toplam_bagaj = min(tahmini_bas_ustu, toplam_yolcu)
+
+        # Risk kararı kırpılmamış talep_orani'na göre
+        asim = talep_orani >= CRITICAL_THRESHOLD
+
+        # Oversized oranı (aksiyon açıklaması için, tahmini çarpmak için DEĞİL)
+        oversized_orani = ucus.oversized_beyan / max(beyan, 1)
+        tahmini_oversized = math.ceil(tahmini_toplam_bagaj * oversized_orani)
+
+        # Beklenen aşım
+        beklenen_asim = max(tahmini_toplam_bagaj - kapasite, 0)
+
+        kritik_sira = self._kritik_sira_hesapla(kapasite, toplam_yolcu, talep_orani)
+
+        # Güven: slider değeri ne kadar yüksekse güven o kadar yüksek
+        guven = round(min(0.40 + min(slider_talep, 1.0) * 0.55, 0.95), 3)
+
+        aciklama = self._aciklama(talep_orani, beklenen_asim, oversized_orani)
 
         return DolulukTahmini(
             ucus_no=ucus.ucus_no,
-            tahmini_doluluk_orani=doluluk,
+            tahmini_doluluk_orani=talep_orani,       # kirpilmamis talep orani
             tahmini_toplam_bagaj=tahmini_toplam_bagaj,
-            tahmini_oversized=ucus.oversized_beyan,
+            tahmini_oversized=tahmini_oversized,
             kritik_yolcu_sirasi=kritik_sira,
             asim_bekleniyor=asim,
             guven_skoru=guven,
             aciklama=aciklama,
-            tahmin_metodu="rule_based",
+            tahmin_metodu=(
+                "rule_based_manual_slider_v2"
+                if getattr(ucus, "manuel_senaryo", False)
+                else "rule_based_operational_v2"
+            ),
         )
 
     def _aciklama(
         self,
-        doluluk: float,
-        kritik_sira: Optional[int],
-        asim: bool,
-        ucus: UcusBilgisi,
+        talep_orani: float,
+        beklenen_asim: int,
+        oversized_orani: float,
     ) -> str:
-        pct = int(doluluk * 100)
-        if not asim:
-            return (
-                f"Tahmini doluluk %{pct} — normal seviye. "
+        pct = round(talep_orani * 100)
+        if talep_orani >= CRITICAL_THRESHOLD:
+            mesaj = (
+                f"Tahmini baş üstü dolap talebi %{pct} — kapasite aşımı riski."
+            )
+            if beklenen_asim > 0:
+                mesaj += f" Beklenen aşım: +{beklenen_asim} bagaj."
+        elif talep_orani >= WARNING_THRESHOLD:
+            mesaj = (
+                f"Tahmini baş üstü dolap talebi %{pct} — UYARI. "
+                f"Büyük kabin bagajları için gate-check hazırlığı planla."
+            )
+        else:
+            mesaj = (
+                f"Tahmini baş üstü dolap talebi %{pct} — normal seviye. "
                 f"Boarding devam edebilir."
             )
-        if kritik_sira:
-            return (
-                f"Tahmini doluluk %{pct} — UYARI. "
-                f"{kritik_sira}. yolcudan itibaren "
-                f"oversized bagajlari check-in'e yonlendir."
-            )
-        return (
-            f"Tahmini doluluk %{pct} — KAPASİTE ASIMI BEKLENIYOR. "
-            f"Boarding baslamadan onlem alin."
-        )
+        if oversized_orani >= 0.30:
+            mesaj += " Oversized oranı yüksek; gate-check hazırlığı önceliklendirilmeli."
+        return mesaj
 
 
 class MLBazliStrateji(BaseTahminStratejisi):
-    """
-    ML tabanlı tahmin — gelecek iterasyon için yer tutucu.
-
-    Şu an KuralBazliStrateji'ye fallback yapar.
-    Yeterli geçmiş veri birikince (>100 kayıt) gerçek ML modeli buraya.
-
-    KAVRAM: Null Object Pattern hafif uygulaması
-    Henüz implement edilmemiş ama sistemi bozmayan bir strateji.
-    """
+    """ML tabanlı tahmin — gelecek iterasyon için yer tutucu."""
 
     def __init__(self):
         self._fallback = KuralBazliStrateji()
-        logger.warning(
-            "MLBazliStrateji henuz implement edilmedi. "
-            "KuralBazliStrateji'ye fallback yapiliyor."
-        )
+        logger.warning("MLBazliStrateji henuz implement edilmedi. Fallback.")
 
     def tahmin_uret(
         self,
@@ -248,17 +241,6 @@ class MLBazliStrateji(BaseTahminStratejisi):
 
 
 class PredictionEngine:
-    """
-    Boarding başlamadan doluluk tahmini üretir.
-
-    BAĞIMLILIKLAR (Dependency Injection):
-    - BaseTahminStratejisi: hangi algoritma?
-    - FlightMemoryRepository: geçmiş veriye eriş
-
-    NOT: Engine uçuş bilgisini OKUR, yazmaz.
-    Uçuş tamamlandığında FlightMemoryRepository'ye kayıt
-    AuditLogService üzerinden yapılır.
-    """
 
     def __init__(
         self,
@@ -275,7 +257,6 @@ class PredictionEngine:
         metod: str = "rule_based",
         memory: Optional[FlightMemoryRepository] = None,
     ) -> "PredictionEngine":
-        """Factory method."""
         mem = memory or FlightMemoryRepository()
         stratejiler = {
             "rule_based": KuralBazliStrateji,
@@ -286,48 +267,23 @@ class PredictionEngine:
         return cls(strateji=stratejiler[metod](), memory=mem)
 
     def tahmin_uret(self, ucus: UcusBilgisi) -> DolulukTahmini:
-        """
-        Uçuş için doluluk tahmini üretir.
-
-        Cache: Aynı uçuş için tekrar tahmin üretilmez.
-        Uçuş bilgisi değişmediği sürece tahmin de değişmez.
-        """
         if ucus.ucus_no in self._tahmin_cache:
-            logger.debug(
-                f"[{ucus.ucus_no}] Tahmin cache'den donuluyor."
-            )
             return self._tahmin_cache[ucus.ucus_no]
-
-        # GEMINI 5. TUR MADDE 3 DÜZELTMESİ: uçak tipi de geçiriliyor —
-        # sefer hafızası artık SADECE aynı uçak tipindeki geçmiş kayıtları
-        # önceliklendiriyor (yeterli veri varsa), tip-bağımsız karıştırma
-        # riski azaltılıyor.
         hat_ist = self._memory.hat_istatistigi_al(ucus.hat, ucus.ucak_tipi.value)
-
-        tahmin = self._strateji.tahmin_uret(ucus, hat_ist)
+        tahmin  = self._strateji.tahmin_uret(ucus, hat_ist)
         self._tahmin_cache[ucus.ucus_no] = tahmin
-
         logger.info(
-            f"[{ucus.ucus_no}] Tahmin: doluluk=%"
-            f"{int(tahmin.tahmini_doluluk_orani*100)}, "
-            f"asim={tahmin.asim_bekleniyor}, "
-            f"guven={tahmin.guven_skoru:.2f}, "
-            f"metod={tahmin.tahmin_metodu}"
+            f"[{ucus.ucus_no}] Tahmin: talep=%{int(tahmin.tahmini_doluluk_orani*100)}, "
+            f"asim={tahmin.asim_bekleniyor}, guven={tahmin.guven_skoru:.2f}"
         )
         return tahmin
 
     def tahmin_gecersiz_kil(self, ucus_no: str) -> None:
-        """Uçuş verisi değişince cache'i temizle."""
         self._tahmin_cache.pop(ucus_no, None)
 
     def strateji_degistir(self, metod: str) -> None:
-        """Runtime strateji değişimi."""
-        stratejiler = {
-            "rule_based": KuralBazliStrateji,
-            "ml_based":   MLBazliStrateji,
-        }
+        stratejiler = {"rule_based": KuralBazliStrateji, "ml_based": MLBazliStrateji}
         if metod not in stratejiler:
             raise ValueError(f"Bilinmeyen metod: {metod}")
         self._strateji = stratejiler[metod]()
         self._tahmin_cache.clear()
-        logger.info(f"PredictionEngine stratejisi degisti: {metod}")

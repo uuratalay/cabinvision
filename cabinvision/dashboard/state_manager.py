@@ -39,6 +39,10 @@ from central.services.fusion_engine import (
     CentralDashboardObserver, AuditLogObserver,
 )
 
+# Demo varsayımı: personal item olasılığı gerçek operasyonel katsayı değildir.
+# Pilot veriyle kalibre edilene kadar yalnızca simülasyon çeşitliliği için kullanılır.
+DEMO_PERSONAL_ITEM_PROBABILITY = 0.75
+
 
 def _init_state():
     """Session state'i başlat — sadece ilk açılışta çalışır."""
@@ -303,14 +307,13 @@ def sim_adim(gate_id: str) -> Optional[FusionCiktisi]:
     # 150*0.75=112.5 bagaj üretilir — tahmin edilen 90'dan %25 fazla.
     # Yani "tutarlılık" sağlamaya çalışırken yeni bir sapma sokulmuş oldu.
     #
-    # DOĞRU FORMÜL: olasılık = tahmini_toplam_bagaj / toplam_yolcu
-    # (DolulukTahmini.tahmini_toplam_bagaj alanı bu düzeltme için eklendi,
-    # bkz. central/models/flight_models.py ve central/services/prediction_engine.py)
-    # Slider degerlerinden gelen check-in beyan orani dogrudan kullaniliyor.
-    # Onceki versiyon sefer hafizasina bakiyordu (tahmini_toplam_bagaj/yolcu),
-    # bu da slider %95'e cekilse bile simulasyonun dusuk olasilik uretmesine
-    # sebep oluyordu. Artik ucus.cabin_beyan_sayisi (slider'dan geliyor) /
-    # toplam_yolcu formulu kullaniliyor -- slider ne gosteriyorsa simule ediyor.
+    # SON KARAR: simülasyon motoru PredictionEngine'in konservatif tahminini
+    # değil, dashboard slider'ından gelen beyan oranını kullanır. PredictionEngine
+    # erken risk sinyali üretir; sim_adim kullanıcının kurduğu senaryoyu doğrudan
+    # üretir. Böylece %95 slider senaryosu düşük geçmiş ortalama yüzünden %30'lara
+    # düşmez.
+    #
+    # DOĞRU FORMÜL: olasılık = cabin_beyan_sayisi / toplam_yolcu
     beyan_orani = ucus.cabin_beyan_sayisi / max(ucus.toplam_yolcu, 1)
     bagaj_getirme_olasiligi = min(beyan_orani, 1.0)
 
@@ -339,7 +342,7 @@ def sim_adim(gate_id: str) -> Optional[FusionCiktisi]:
 
     from edge.models.detection_models import BoyutSinifi
 
-    # 1) BAŞ ÜSTÜ DOLABI — mevcut tahmin motoru sinyali (zaten doğru formül)
+    # 1) BAŞ ÜSTÜ DOLABI — slider/beyan oranı ile üretilir
     bas_ustu_getirildi = rng.random() < bagaj_getirme_olasiligi
     if bas_ustu_getirildi:
         manuel_oranlar = st.session_state.get("manuel_oversized_oran", {})
@@ -357,8 +360,7 @@ def sim_adim(gate_id: str) -> Optional[FusionCiktisi]:
     # azından küçük bir kişisel eşya (laptop çantası, el çantası) taşıdığı
     # makul ama doğrulanmamış bir sezgiye dayanıyor. Gerçek pilot veriyle
     # kalibre edilmesi gerekir.
-    PERSONAL_ITEM_GETIRME_ORANI = 0.75  # KANITSIZ VARSAYIM — kalibrasyon gerekli
-    koltuk_alti_getirildi = rng.random() < PERSONAL_ITEM_GETIRME_ORANI
+    koltuk_alti_getirildi = rng.random() < DEMO_PERSONAL_ITEM_PROBABILITY
     if koltuk_alti_getirildi:
         # +19000: bas_ustu'nun +9000 id aralığıyla ÇAKIŞMASIN diye farklı aralık
         inf._InferenceService__sayilan_idler[yolcu_no + 19000] = BoyutSinifi.PERSONAL_ITEM
@@ -445,6 +447,7 @@ def ucus_parametre_guncelle(
         cabin_beyan_sayisi=beyan_sayisi,
         oversized_beyan=oversized_sayisi,
         gate_id=gate_id,
+        manuel_senaryo=True,
     )
 
     pred = st.session_state["pred_engine"]

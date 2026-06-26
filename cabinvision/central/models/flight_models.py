@@ -83,6 +83,7 @@ class UcusBilgisi:
     oversized_beyan:   int
     gate_id:           str
     kalkis_zamani:     float = field(default_factory=time.time)
+    manuel_senaryo:    bool = False  # Dashboard slider ile kurulan manuel/demo senaryo
 
     @property
     def dolap_kapasitesi(self) -> int:

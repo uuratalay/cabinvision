@@ -133,6 +133,7 @@ def prediction_pair(memory_repo):
         cabin_beyan_sayisi=140,
         oversized_beyan=22,
         gate_id="IST-GATE-07",
+        manuel_senaryo=True,  # %100 ustuNE cikabilmesi icin manuel mod
     )
     return engine.tahmin_uret(ucus_riskli), engine.tahmin_uret(ucus_normal)
 
@@ -234,6 +235,7 @@ def test_prediction_engine(memory_repo):
         cabin_beyan_sayisi=140,
         oversized_beyan=22,
         gate_id="IST-GATE-07",
+        manuel_senaryo=True,  # %100 ustuNE cikabilmesi icin manuel mod
     )
 
     tahmin_normal, _ = bench("Normal ucus tahmini", engine.tahmin_uret, ucus_normal)
