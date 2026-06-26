@@ -132,12 +132,19 @@ class KuralBazliStrateji(BaseTahminStratejisi):
             else varsayilan_doluluk
         )
 
-        # 3) Opsiyonel PNR/check-in sinyali.
-        # Bu sinyal kabin bagajı beyanı olarak doğrulanmadığı için yalnızca
-        # düşük ağırlıklı yardımcı feature'dır; `%40 beyan etmeyen` varsayımı
-        # tamamen kaldırılmıştır.
-        pnr_agirlik = PNR_OPSIYONEL_AGIRLIK if ucus.cabin_beyan_sayisi > 0 else 0.0
-        pnr_doluluk = min(ucus.cabin_beyan_sayisi / max(kapasite, 1), 1.0)
+        # 3) Check-in / slider sinyali.
+        # Beyan sayisi yolcu sayisina bolunur (kapasiteye degil) -- bu sayede
+        # slider %95e cekildiginde pnr_doluluk ~%95 cikar.
+        # Beyan orani yuksekse agirlik da artar (max 0.60) -- sefer hafizasini
+        # override edebilir, boylece slider demo amaciyla gercekci sonuc verir.
+        if ucus.cabin_beyan_sayisi > 0 and ucus.toplam_yolcu > 0:
+            beyan_oran = ucus.cabin_beyan_sayisi / ucus.toplam_yolcu
+            pnr_doluluk = min(beyan_oran, 1.0)
+            # Beyan orani yukseldikce agirlik artar (0.15 -> 0.60)
+            pnr_agirlik = min(0.15 + beyan_oran * 0.45, 0.60)
+        else:
+            pnr_agirlik = 0.0
+            pnr_doluluk = varsayilan_doluluk
 
         varsayilan_agirlik = max(0.0, 1.0 - gecmis_agirlik - pnr_agirlik)
         doluluk = (
