@@ -306,10 +306,13 @@ def sim_adim(gate_id: str) -> Optional[FusionCiktisi]:
     # DOĞRU FORMÜL: olasılık = tahmini_toplam_bagaj / toplam_yolcu
     # (DolulukTahmini.tahmini_toplam_bagaj alanı bu düzeltme için eklendi,
     # bkz. central/models/flight_models.py ve central/services/prediction_engine.py)
-    bagaj_getirme_olasiligi = min(
-        tahmin.tahmini_toplam_bagaj / max(ucus.toplam_yolcu, 1),
-        1.0
-    )
+    # Slider degerlerinden gelen check-in beyan orani dogrudan kullaniliyor.
+    # Onceki versiyon sefer hafizasina bakiyordu (tahmini_toplam_bagaj/yolcu),
+    # bu da slider %95'e cekilse bile simulasyonun dusuk olasilik uretmesine
+    # sebep oluyordu. Artik ucus.cabin_beyan_sayisi (slider'dan geliyor) /
+    # toplam_yolcu formulu kullaniliyor -- slider ne gosteriyorsa simule ediyor.
+    beyan_orani = ucus.cabin_beyan_sayisi / max(ucus.toplam_yolcu, 1)
+    bagaj_getirme_olasiligi = min(beyan_orani, 1.0)
 
     yolcu_no += 1
     st.session_state["sim_yolcu_no"][gate_id] = yolcu_no
@@ -340,7 +343,8 @@ def sim_adim(gate_id: str) -> Optional[FusionCiktisi]:
     bas_ustu_getirildi = rng.random() < bagaj_getirme_olasiligi
     if bas_ustu_getirildi:
         manuel_oranlar = st.session_state.get("manuel_oversized_oran", {})
-        over_w = manuel_oranlar.get(gate_id, 0.15)
+        # Slider oversized oranini kullan (varsayilan 0.15 degil, gercek deger)
+        over_w = manuel_oranlar.get(gate_id, ucus.oversized_beyan / max(ucus.cabin_beyan_sayisi, 1))
         bas_ustu_turu = (
             BoyutSinifi.OVERSIZED if rng.random() < over_w else BoyutSinifi.CABIN_OK
         )
